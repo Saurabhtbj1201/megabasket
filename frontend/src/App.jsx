@@ -24,6 +24,10 @@ import AdminContactPage from './pages/admin/AdminContactPage';
 import ReturnPolicyPage from './pages/ReturnPolicyPage';
 import CancellationPolicyPage from './pages/CancellationPolicyPage';
 import CookiePolicyPage from './pages/CookiePolicyPage';
+import axios from 'axios';
+
+// Set axios base URL from env variable (works for both dev and prod)
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '/';
 
 // Placeholders for new pages
 const PlaceholderPage = ({ title }) => <div className="container" style={{padding: '2rem 0'}}><h1>{title}</h1><p>Content for this page will be added soon.</p></div>;

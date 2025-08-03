@@ -8,8 +8,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://megabasket-lfm1.onrender.com', // Your backend server address
+        target: 'https://megabasket-lfm1.onrender.com', // Remove /api from target
         changeOrigin: true,
+        rewrite: path => path.replace(/^\/api/, '/api'), // Keep /api prefix
       },
     },
   },
@@ -18,4 +19,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  define: {
+    'process.env': process.env // Expose env variables
+  }
 })
