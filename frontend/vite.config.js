@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // Your backend server address
+        target: 'https://megabasket-lfm1.onrender.com', // Your backend server address
         changeOrigin: true,
       },
     },
