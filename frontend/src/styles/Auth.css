@@ -1,0 +1,104 @@
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.auth-form {
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.auth-form h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.auth-button:hover {
+    background-color: #0056b3;
+}
+
+.google-login-container {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.auth-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.auth-links p {
+    margin-bottom: 0.75rem;
+}
+
+.auth-links a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    margin: 0;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+/* Admin Login Page Specific Styles */
+.auth-header {
+    padding: 1rem 2rem;
+    background-color: var(--light-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.auth-header-logo {
+    color: var(--dark-color);
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.admin-login-page {
+    background-color: #f4f6f9;
+    min-height: 100vh;
+}
+
+.admin-login-page .auth-container {
+    padding-top: 4rem;
+}

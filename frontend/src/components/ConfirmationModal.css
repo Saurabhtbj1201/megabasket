@@ -1,0 +1,10 @@
+.confirmation-modal {
+    max-width: 450px;
+    text-align: center;
+}
+
+.confirmation-modal p {
+    margin: 1.5rem 0;
+    font-size: 1.1rem;
+    color: #555;
+}

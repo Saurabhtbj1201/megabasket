@@ -1,0 +1,111 @@
+.policy-page {
+    padding: 2rem 0;
+    line-height: 1.7;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.policy-page .container {
+    max-width: 900px;
+    background-color: #fff;
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+}
+
+.policy-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.policy-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+}
+
+.policy-header p {
+    color: #777;
+    font-style: italic;
+}
+
+.policy-content h2 {
+    font-size: 1.8rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--dark-color);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.policy-content h3 {
+    font-size: 1.4rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--dark-color);
+}
+
+.policy-content p {
+    margin-bottom: 1rem;
+}
+
+.policy-content ul, .policy-content ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.policy-content li {
+    margin-bottom: 0.75rem;
+}
+
+.policy-content a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.policy-content a:hover {
+    text-decoration: underline;
+}
+
+.policy-content strong {
+    font-weight: 600;
+    color: #222;
+}
+
+.policy-footer-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+@media (max-width: 768px) {
+    .policy-page {
+        padding: 1rem 0;
+        background-color: #fff; /* Match container background on mobile */
+    }
+
+    .policy-page .container {
+        padding: 1.3rem;
+        box-shadow: none;
+    }
+
+    .policy-header {
+        margin-bottom: 2rem;
+    }
+
+    .policy-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .policy-content h2 {
+        font-size: 1.4rem;
+    }
+
+    .policy-content h3 {
+        font-size: 1.2rem;
+    }
+}

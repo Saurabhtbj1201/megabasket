@@ -1,0 +1,87 @@
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.date-range-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-range-picker input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.dashboard-kpi-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.kpi-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.kpi-card-icon {
+    font-size: 2.5rem;
+    padding: 1rem;
+    border-radius: 50%;
+    color: #fff;
+}
+
+.kpi-card-info h3 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.kpi-card-info p {
+    margin: 0;
+    color: #666;
+}
+
+.dashboard-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative; /* Add this */
+    height: 400px; /* Give a fixed height */
+}
+
+.recent-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.recent-orders-table th, .recent-orders-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.recent-orders-table th {
+    background-color: #f8f9fa;
+}

@@ -1,0 +1,69 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.location-options .auth-button {
+    width: 100%;
+    margin-bottom: 1rem;
+    background-color: var(--secondary-color);
+}
+
+.saved-addresses-list {
+    margin-top: 1.5rem;
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+}
+
+.saved-address-item {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.saved-address-item:hover {
+    border-color: var(--primary-color);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.modal-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.modal-actions .auth-button.secondary {
+    background-color: var(--secondary-color);
+}

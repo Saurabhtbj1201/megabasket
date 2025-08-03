@@ -1,0 +1,237 @@
+.header {
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    position: relative;
+    z-index: 100;
+}
+
+.location-bar {
+    background-color: #f8f9fa;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.location-bar:hover {
+    background-color: #e9ecef;
+}
+
+.header-logo {
+    text-decoration: none;
+    color: var(--dark-color);
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  padding: 0 0.5rem;
+  border-radius: 5px;
+  flex-grow: 1;
+  margin: 0 1rem;
+  max-width: 14rem;
+  min-width: 8rem;
+  width: 100%;
+}
+
+.header-search input {
+    border: none;
+    outline: none;
+    max-width: 15rem;
+    min-width: 4rem;
+}
+
+.header-nav {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.nav-icon-link {
+    position: relative;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.header-nav a {
+    color: var(--dark-color);
+    font-size: 1.2rem;
+}
+
+.profile-menu {
+    position: relative;
+}
+
+.profile-menu-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+    color: var(--dark-color);
+}
+
+.profile-name {
+    display: inline; /* Default for desktop */
+}
+
+.mobile-login-icon {
+    display: none; /* Hidden on desktop */
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    list-style: none;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    width: 150px;
+    z-index: 1000;
+}
+
+.profile-dropdown li a,
+.profile-dropdown li button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    background: none;
+    border: none;
+    color: var(--dark-color);
+    font-size: 1rem;
+}
+
+.profile-dropdown li a:hover,
+.profile-dropdown li button:hover {
+    background-color: var(--light-color);
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    list-style: none;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    width: 350px;
+    z-index: 1000;
+}
+
+.notification-dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-dropdown-header button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.notification-item {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    color: var(--dark-color);
+}
+
+.notification-item.unread {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.notification-item p {
+    margin: 0.5rem 0;
+}
+
+.notification-item small {
+    color: #666;
+    font-style: italic;
+}
+
+.no-notifications {
+    padding: 2rem;
+    text-align: center;
+    color: #888;
+}
+
+@media (max-width: 768px) {
+    .header-location,
+    .profile-name,
+    .desktop-login-text {
+        display: none;
+    }
+
+    .mobile-login-icon {
+        display: block;
+    }
+
+    .header {
+        padding: 1rem 0.5rem;
+    }
+
+    .header-nav {
+        gap: 0.7rem;
+    }
+    .header-search {
+    max-width: 10rem;
+    margin: 0 0.5rem;
+  }
+  .header-search button {
+    padding: 0.5rem 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-search {
+    max-width: 8rem;
+    margin: 0 0.3rem;
+  }
+  .header-nav .nav-icon-link button{
+    padding:0
+  }
+  .header-search button {
+    padding: 0.5rem 0.1rem;
+  }
+}

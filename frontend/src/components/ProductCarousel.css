@@ -1,0 +1,38 @@
+.product-carousel-section {
+    margin: 2rem 0;
+    padding: 1rem 1rem;
+    border-radius: 8px;
+}
+
+/* Add alternating background colors */
+.product-carousel-section:nth-of-type(4n+1) {
+    background-color: rgba(0, 123, 255, 0.07); /* primary with opacity */
+}
+.product-carousel-section:nth-of-type(4n+2) {
+    background-color: rgba(40, 167, 69, 0.07); /* success with opacity */
+}
+.product-carousel-section:nth-of-type(4n+3) {
+    background-color: rgba(255, 193, 7, 0.07); /* warning with opacity */
+}
+.product-carousel-section:nth-of-type(4n+4) {
+    background-color: rgba(108, 117, 125, 0.07); /* secondary with opacity */
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+}
+
+.section-header .view-all-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+}

@@ -1,0 +1,82 @@
+.recommendations-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    padding: 0;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+.recommendation-grid {
+    padding: 1rem;
+    border-radius: 8px;
+}
+.recommendation-grid:nth-of-type(4n+1) {
+    background-color: rgba(0, 123, 255, 0.07); /* primary with opacity */
+}
+.recommendation-grid:nth-of-type(4n+2) {
+    background-color: rgba(40, 167, 69, 0.07); /* success with opacity */
+}
+.recommendation-grid:nth-of-type(4n+3) {
+    background-color: rgba(255, 193, 7, 0.07); /* warning with opacity */
+}
+.recommendation-grid:nth-of-type(4n+4) {
+    background-color: rgba(108, 117, 125, 0.07); /* secondary with opacity */
+}
+
+.recommendation-grid .view-all-btn {
+    font-size: 0.8rem;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+/* Styles to make product cards smaller within the recommendation grid */
+.recommendation-grid .product-card {
+    min-width: 150px;
+    }
+
+.recommendation-grid .product-image-container {
+    height: 120px;
+}
+
+.recommendation-grid .product-info {
+    padding: 0.75rem;
+}
+
+.recommendation-grid .product-title {
+    font-size: 0.9rem;
+}
+
+.recommendation-grid .product-description {
+    font-size: 0.8rem;
+}
+
+.recommendation-grid .product-price {
+    font-size: 1rem;
+}
+
+.recommendation-grid .product-actions {
+    margin-top: 0.5rem;
+}
+
+.recommendation-grid .action-btn {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .recommendations-container {
+        grid-template-columns: 1fr;
+        padding: 0rem;
+        margin: 1rem 0;
+    }
+
+    .recommendation-grid {
+        padding: 1rem;
+    }
+}

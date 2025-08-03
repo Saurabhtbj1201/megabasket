@@ -1,0 +1,69 @@
+.banner-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-and-add {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.banner-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.banner-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 1.5rem;
+    padding: 1rem;
+    align-items: center;
+}
+
+.banner-card img {
+    width: 200px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.banner-info h3 {
+    margin-top: 0;
+}
+
+.banner-info p {
+    color: #666;
+    margin: 0.5rem 0;
+}
+
+.banner-link {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+}
+
+.banner-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 1rem;
+}
+
+.banner-actions button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--secondary-color);
+}
+
+.banner-actions button:hover {
+    color: var(--primary-color);
+}
