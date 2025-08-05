@@ -40,10 +40,6 @@
     min-width: 150px;
     }
 
-.recommendation-grid .product-image-container {
-    height: 120px;
-}
-
 .recommendation-grid .product-info {
     padding: 0.75rem;
 }
@@ -78,5 +74,13 @@
 
     .recommendation-grid {
         padding: 1rem;
+    }
+
+    .recommendation-grid .product-title {
+        margin-bottom: 0.5rem;
+    }
+
+    .product-price {
+        gap: 0.4rem;
     }
 }
