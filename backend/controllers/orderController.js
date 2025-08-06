@@ -287,7 +287,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
                             <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${order.paymentMethod}</p>
                         </div>
                         
-                        <div style="margin: 25px 0; position: relative;">
+                        <div style="margin: 2rem 0 25rem 0; position: relative;">
                             <div style="height: 4px; background-color: #E0E0E0; position: relative; margin: 30px 0 50px 0;">
                                 <div style="height: 100%; width: ${order.status === 'Order Received' ? '16.6%' : 
                                     order.status === 'Processing' ? '33.2%' : 
