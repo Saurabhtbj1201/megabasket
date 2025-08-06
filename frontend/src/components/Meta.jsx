@@ -12,6 +12,8 @@ const Meta = ({ title, description, keywords, author, canonical, ogImage, ogType
     const defaultOgType = 'website';
     const defaultTwitterCard = 'summary_large_image';
 
+    const finalOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : defaultOgImage;
+
     return (
         <Helmet>
             <title>{title || defaultTitle}</title>
@@ -29,7 +31,7 @@ const Meta = ({ title, description, keywords, author, canonical, ogImage, ogType
             {/* Open Graph Tags */}
             <meta property="og:title" content={title || defaultTitle} />
             <meta property="og:description" content={description || defaultDescription} />
-            <meta property="og:image" content={ogImage || defaultOgImage} />
+            <meta property="og:image" content={finalOgImage} />
             <meta property="og:url" content={canonical || currentUrl} />
             <meta property="og:type" content={ogType || defaultOgType} />
             <meta property="og:site_name" content="MegaBasket" />
@@ -38,7 +40,7 @@ const Meta = ({ title, description, keywords, author, canonical, ogImage, ogType
             <meta name="twitter:card" content={twitterCard || defaultTwitterCard} />
             <meta name="twitter:title" content={title || defaultTitle} />
             <meta name="twitter:description" content={description || defaultDescription} />
-            <meta name="twitter:image" content={ogImage || defaultOgImage} />
+            <meta name="twitter:image" content={finalOgImage} />
         </Helmet>
     );
 };
