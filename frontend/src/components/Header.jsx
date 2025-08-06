@@ -22,25 +22,6 @@ const Header = () => {
   const unreadCount = useMemo(() => notifications.filter(n => !n.isRead).length, [notifications]);
 
   useEffect(() => {
-    // This effect runs only in the user-facing app because Header is not in AdminLayout.
-    // It checks for new notifications about orders and plays a sound.
-    const unplayedOrderNotifications = notifications.filter(n =>
-      n._id && // Ensure notification has an id
-      !playedNotificationIds.current.has(n._id) &&
-      n.message && n.message.toLowerCase().includes('order')
-    );
-
-    if (unplayedOrderNotifications.length > 0) {
-      // NOTE: Ensure you have a sound file at public/sounds/notification.mp3
-      const audio = new Audio('/sounds/notification.mp3');
-      audio.play().catch(error => {
-        console.log('Audio play was prevented by the browser. User interaction is needed to enable audio.');
-      });
-      unplayedOrderNotifications.forEach(n => playedNotificationIds.current.add(n._id));
-    }
-  }, [notifications]);
-
-  useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
         setDropdownOpen(false);

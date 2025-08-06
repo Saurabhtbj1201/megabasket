@@ -174,7 +174,65 @@ const forgotPassword = asyncHandler(async (req, res) => {
     await user.save();
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-    const message = `<p>You are receiving this email because you (or someone else) has requested the reset of a password. Please click the link below to reset your password:</p><a href="${resetUrl}">${resetUrl}</a><p>If you did not request this, please ignore this email.</p>`;
+    
+    const message = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Reset Your Password</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; color: #333333; background-color: #f9f9f9;">
+            <!-- Header -->
+            <div style="background-color: #4CAF50; padding: 20px; text-align: center;">
+                <img src="${process.env.FRONTEND_URL}/logo.png" alt="MegaBasket Logo" style="max-height: 60px; margin-bottom: 10px;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">Password Reset Request</h1>
+            </div>
+            
+            <!-- Content -->
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: white; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h2 style="color: #4CAF50; margin-top: 0; font-size: 20px;">Hello ${user.name},</h2>
+                
+                <p style="font-size: 16px; line-height: 1.5;">We received a request to reset your password for your MegaBasket account. If you didn't make this request, you can safely ignore this email.</p>
+                
+                <div style="background-color: #f5f5f5; border-left: 4px solid #4CAF50; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #333333;">To reset your password, click the button below. This link is valid for the next 15 minutes.</p>
+                </div>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${resetUrl}" style="display: inline-block; background-color: #4CAF50; color: white; text-decoration: none; padding: 12px 25px; border-radius: 4px; font-weight: bold; font-size: 16px;">Reset My Password</a>
+                </div>
+                
+                <p style="font-size: 14px; line-height: 1.5; color: #666666;">If the button above doesn't work, you can also copy and paste the following link into your browser:</p>
+                
+                <p style="font-size: 14px; background-color: #f9f9f9; padding: 10px; border-radius: 4px; word-break: break-all;">
+                    <a href="${resetUrl}" style="color: #4CAF50; text-decoration: none;">${resetUrl}</a>
+                </p>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eeeeee;">
+                    <p style="font-size: 14px; color: #666666; margin-bottom: 0;">For security reasons, this password reset link will expire in 15 minutes. If you need assistance, please contact our support team.</p>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; color: #777777; font-size: 12px;">
+                <p>© ${new Date().getFullYear()} MegaBasket. All rights reserved.</p>
+                <p>
+                    <a href="${process.env.FRONTEND_URL}/contact" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Contact Us</a> |
+                    <a href="${process.env.FRONTEND_URL}/terms" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Terms & Conditions</a> |
+                    <a href="${process.env.FRONTEND_URL}/privacy" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+                </p>
+                <div style="margin-top: 15px;">
+                    <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/facebook-icon.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
+                    <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/twitter-icon.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
+                    <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/instagram-icon.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
+                </div>
+                <p style="margin-top: 15px; font-size: 11px;">If you have any questions, please don't hesitate to contact our customer service team at <a href="mailto:support@megabasket.com" style="color: #4CAF50;">support@megabasket.com</a></p>
+            </div>
+        </body>
+        </html>
+    `;
 
     await sendEmail({ email: user.email, subject: 'Password Reset Request', message });
 
