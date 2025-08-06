@@ -91,7 +91,7 @@ const AdminProductPage = () => {
     const filteredProducts = products
         .filter(p => p.status === activeTab || activeTab === 'All')
         .filter(p => p.name.toLowerCase().includes(filters.search.toLowerCase()))
-        .filter(p => filters.category ? p.category._id === filters.category : true);
+        .filter(p => filters.category ? p.category && p.category._id === filters.category : true);
 
     return (
         <>
@@ -131,7 +131,7 @@ const AdminProductPage = () => {
                             <img src={product.images[0]} alt={product.name} />
                             <div>
                                 <strong>{product.name}</strong>
-                                <p>{product.category.name}</p>
+                                <p>{product.category ? product.category.name : 'Uncategorized'}</p>
                                 {product.brand && <p className="product-meta">Brand: {product.brand}</p>}
                                 {product.color && <p className="product-meta">Color: {product.color}</p>}
                             </div>

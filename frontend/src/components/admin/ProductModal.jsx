@@ -48,7 +48,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }) => {
     useEffect(() => {
         if (product) {
             setFormData({
-                name: product.name, description: product.description, category: product.category._id,
+                name: product.name, description: product.description, category: product.category?._id || '',
                 price: product.price, discount: product.discount, stock: product.stock,
                 tags: product.tags.join(', '), shippingInfo: product.shippingInfo, status: product.status,
                 brand: product.brand || '',
