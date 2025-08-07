@@ -218,7 +218,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
                 let statusColor;
                 let statusIcon;
                 let statusMessage;
-                
+
                 switch (updatedOrder.status) {
                     case 'Processing':
                         statusColor = "#FF9800"; // Orange
@@ -255,7 +255,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
                         statusIcon = "📋";
                         statusMessage = `Your order status has been updated to: ${updatedOrder.status}`;
                 }
-                
+
                 const emailMessage = `
                 <!DOCTYPE html>
                 <html>
@@ -291,14 +291,13 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
                         <div style="position: relative; height: 4px; background-color: #E0E0E0;">
                             <div style="
                                 height: 100%; 
-                                width: ${
-                                    order.status === 'Order Received' ? '16.6%' : 
-                                    order.status === 'Processing' ? '33.2%' : 
-                                    order.status === 'Order Dispatched' ? '49.8%' : 
-                                    order.status === 'Shipped' ? '66.4%' : 
-                                    order.status === 'In Transit' ? '83%' : 
-                                    order.status === 'Delivered' ? '100%' : '0%'
-                                }; 
+                                width: ${order.status === 'Order Received' ? '16.6%' :
+                        order.status === 'Processing' ? '33.2%' :
+                            order.status === 'Order Dispatched' ? '49.8%' :
+                                order.status === 'Shipped' ? '66.4%' :
+                                    order.status === 'In Transit' ? '83%' :
+                                        order.status === 'Delivered' ? '100%' : '0%'
+                    }; 
                                 background-color: ${statusColor};
                                 position: absolute; 
                                 top: 0; 
@@ -316,36 +315,36 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
                             position: relative;
                         ">
                             ${[
-                                "Order Received",
-                                "Processing",
-                                "Order Dispatched",
-                                "Shipped",
-                                "In Transit",
-                                "Delivered"
-                            ].map((stage, index) => `
+                        "Order Received",
+                        "Processing",
+                        "Order Dispatched",
+                        "Shipped",
+                        "In Transit",
+                        "Delivered"
+                    ].map((stage, index) => `
                                 <div style="flex: 1; min-width: 90px; text-align: center;">
                                     <div style="
                                         width: 20px;
                                         height: 20px;
                                         margin: 0 auto;
                                         border-radius: 50%;
-                                        background-color: ${stage === order.status || 
-                                            ([
-                                                "Order Received",
-                                                "Processing",
-                                                "Order Dispatched",
-                                                "Shipped",
-                                                "In Transit",
-                                                "Delivered"
-                                            ].indexOf(stage) <= [
-                                                "Order Received",
-                                                "Processing",
-                                                "Order Dispatched",
-                                                "Shipped",
-                                                "In Transit",
-                                                "Delivered"
-                                            ].indexOf(order.status)) 
-                                            ? statusColor : '#E0E0E0'};
+                                        background-color: ${stage === order.status ||
+                            ([
+                                "Order Received",
+                                "Processing",
+                                "Order Dispatched",
+                                "Shipped",
+                                "In Transit",
+                                "Delivered"
+                            ].indexOf(stage) <= [
+                                "Order Received",
+                                "Processing",
+                                "Order Dispatched",
+                                "Shipped",
+                                "In Transit",
+                                "Delivered"
+                            ].indexOf(order.status))
+                            ? statusColor : '#E0E0E0'};
                                         border: 2px solid white;
                                         position: relative;
                                         top: -12px;
