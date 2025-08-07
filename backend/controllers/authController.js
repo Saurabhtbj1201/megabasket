@@ -79,9 +79,9 @@ const registerUser = asyncHandler(async (req, res) => {
                     <a href="${process.env.FRONTEND_URL}/privacy" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/facebook-icon.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
-                    <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/twitter-icon.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
-                    <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/instagram-icon.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
+                    <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/facebook.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
+                    <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/twitter.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
+                    <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/instagram.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
                 </div>
                 <p style="font-size: 11px; color: #999;">If you have any questions, please contact our customer service team at <a href="mailto:support@megabasket.com" style="color: #4CAF50;">support@megabasket.com</a></p>
             </div>
@@ -172,9 +172,9 @@ const sendWelcomeEmail = async (user) => {
                         <a href="${process.env.FRONTEND_URL}/privacy" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
                     </div>
                     <div style="margin-bottom: 15px;">
-                        <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/facebook-icon.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
-                        <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/twitter-icon.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
-                        <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/instagram-icon.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
+                        <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/facebook.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
+                        <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/twitter.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
+                        <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/instagram.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
                     </div>
                     <p style="font-size: 11px; color: #999;">If you have any questions, please contact our customer service team at <a href="mailto:support@megabasket.com" style="color: #4CAF50;">support@megabasket.com</a></p>
                 </div>
@@ -381,9 +381,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
                     <a href="${process.env.FRONTEND_URL}/privacy" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
                 </p>
                 <div style="margin-top: 15px;">
-                    <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/facebook-icon.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
-                    <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/twitter-icon.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
-                    <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/instagram-icon.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
+                    <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/facebook.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
+                    <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/twitter.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
+                    <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/email-png/instagram.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
                 </div>
                 <p style="margin-top: 15px; font-size: 11px;">If you have any questions, please don't hesitate to contact our customer service team at <a href="mailto:support@megabasket.com" style="color: #4CAF50;">support@megabasket.com</a></p>
             </div>
