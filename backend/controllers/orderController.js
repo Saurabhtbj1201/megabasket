@@ -286,48 +286,76 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
                             <p style="margin: 5px 0;"><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
                             <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${order.paymentMethod}</p>
                         </div>
-                        
-                        <div style="margin: 2rem 0 25rem 0; position: relative;">
-                            <div style="height: 4px; background-color: #E0E0E0; position: relative; margin: 30px 0 50px 0;">
-                                <div style="height: 100%; width: ${order.status === 'Order Received' ? '16.6%' : 
+                       <div style="margin: 2rem 0 5rem 0; position: relative;">
+                        <!-- Progress Line -->
+                        <div style="position: relative; height: 4px; background-color: #E0E0E0;">
+                            <div style="
+                                height: 100%; 
+                                width: ${
+                                    order.status === 'Order Received' ? '16.6%' : 
                                     order.status === 'Processing' ? '33.2%' : 
                                     order.status === 'Order Dispatched' ? '49.8%' : 
                                     order.status === 'Shipped' ? '66.4%' : 
                                     order.status === 'In Transit' ? '83%' : 
                                     order.status === 'Delivered' ? '100%' : '0%'
-                                }; background-color: ${statusColor};"></div>
-                                
-                                <div style="position: absolute; top: -8px; left: 0%; transform: translateX(-50%);">
-                                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${['Order Received', 'Processing', 'Order Dispatched', 'Shipped', 'In Transit', 'Delivered'].indexOf(order.status) >= 0 ? statusColor : '#E0E0E0'}; border: 2px solid white;"></div>
-                                    <p style="position: absolute; top: 25px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 12px;">Order Received</p>
-                                </div>
-                                
-                                <div style="position: absolute; top: -8px; left: 20%; transform: translateX(-50%);">
-                                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${['Processing', 'Order Dispatched', 'Shipped', 'In Transit', 'Delivered'].indexOf(order.status) >= 0 ? statusColor : '#E0E0E0'}; border: 2px solid white;"></div>
-                                    <p style="position: absolute; top: 25px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 12px;">Processing</p>
-                                </div>
-                                
-                                <div style="position: absolute; top: -8px; left: 40%; transform: translateX(-50%);">
-                                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${['Order Dispatched', 'Shipped', 'In Transit', 'Delivered'].indexOf(order.status) >= 0 ? statusColor : '#E0E0E0'}; border: 2px solid white;"></div>
-                                    <p style="position: absolute; top: 25px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 12px;">Dispatched</p>
-                                </div>
-                                
-                                <div style="position: absolute; top: -8px; left: 60%; transform: translateX(-50%);">
-                                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${['Shipped', 'In Transit', 'Delivered'].indexOf(order.status) >= 0 ? statusColor : '#E0E0E0'}; border: 2px solid white;"></div>
-                                    <p style="position: absolute; top: 25px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 12px;">Shipped</p>
-                                </div>
-                                
-                                <div style="position: absolute; top: -8px; left: 80%; transform: translateX(-50%);">
-                                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${['In Transit', 'Delivered'].indexOf(order.status) >= 0 ? statusColor : '#E0E0E0'}; border: 2px solid white;"></div>
-                                    <p style="position: absolute; top: 25px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 12px;">In Transit</p>
-                                </div>
-                                
-                                <div style="position: absolute; top: -8px; left: 100%; transform: translateX(-50%);">
-                                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${order.status === 'Delivered' ? statusColor : '#E0E0E0'}; border: 2px solid white;"></div>
-                                    <p style="position: absolute; top: 25px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 12px;">Delivered</p>
-                                </div>
-                            </div>
+                                }; 
+                                background-color: ${statusColor};
+                                position: absolute; 
+                                top: 0; 
+                                left: 0;
+                            "></div>
                         </div>
+
+                        <!-- Status Dots + Labels -->
+                        <div style="
+                            display: flex; 
+                            justify-content: space-between; 
+                            gap: 3rem; 
+                            flex-wrap: wrap;
+                            margin-top: -10px; 
+                            position: relative;
+                        ">
+                            ${[
+                                "Order Received",
+                                "Processing",
+                                "Order Dispatched",
+                                "Shipped",
+                                "In Transit",
+                                "Delivered"
+                            ].map((stage, index) => `
+                                <div style="flex: 1; min-width: 90px; text-align: center;">
+                                    <div style="
+                                        width: 20px;
+                                        height: 20px;
+                                        margin: 0 auto;
+                                        border-radius: 50%;
+                                        background-color: ${stage === order.status || 
+                                            ([
+                                                "Order Received",
+                                                "Processing",
+                                                "Order Dispatched",
+                                                "Shipped",
+                                                "In Transit",
+                                                "Delivered"
+                                            ].indexOf(stage) <= [
+                                                "Order Received",
+                                                "Processing",
+                                                "Order Dispatched",
+                                                "Shipped",
+                                                "In Transit",
+                                                "Delivered"
+                                            ].indexOf(order.status)) 
+                                            ? statusColor : '#E0E0E0'};
+                                        border: 2px solid white;
+                                        position: relative;
+                                        top: -12px;
+                                    "></div>
+                                    <p style="margin-top: 8px; font-size: 12px; white-space: normal;">${stage}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
                         
                         <h3 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 40px;">Order Summary</h3>
                         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">

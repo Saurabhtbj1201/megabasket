@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const User = require('../models/userModel');
+const Product = require('../models/productModel');
 const generateToken = require('../utils/generateToken');
 const sendEmail = require('../utils/sendEmail');
 const { OAuth2Client } = require('google-auth-library');
@@ -33,14 +34,163 @@ const registerUser = asyncHandler(async (req, res) => {
         user = await User.create({ name, email, password, phone, otp, otpExpires });
     }
 
+    // Enhanced OTP Email Template
+    const otpMessage = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Your MegaBasket Verification Code</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; color: #333333; background-color: #f9f9f9;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #4CAF50, #2E8B57); padding: 30px 20px; text-align: center;">
+                <img src="${process.env.FRONTEND_URL}/logo.png" alt="MegaBasket Logo" style="max-height: 60px; margin-bottom: 10px;">
+                <h1 style="color: white; margin: 0; font-size: 24px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Verify Your Account</h1>
+            </div>
+            
+            <!-- Content -->
+            <div style="max-width: 600px; margin: 0 auto; padding: 30px 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: -20px; position: relative;">
+                <p style="font-size: 16px; line-height: 1.6; color: #444;">Hi ${name},</p>
+                <p style="font-size: 16px; line-height: 1.6; color: #444;">Welcome to MegaBasket! Please use the verification code below to complete your registration.</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="font-size: 32px; letter-spacing: 5px; font-weight: bold; background-color: #f5f5f5; padding: 15px; border-radius: 8px; color: #333; display: inline-block; min-width: 200px; border: 1px dashed #ccc;">
+                        ${otp}
+                    </div>
+                    <p style="font-size: 14px; color: #666; margin-top: 15px;">This code will expire in 10 minutes.</p>
+                </div>
+                
+                <div style="background-color: #f5f9f5; border-left: 4px solid #4CAF50; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                    <p style="margin: 0; color: #333333; font-size: 14px;">If you didn't request this verification code, please ignore this email or contact our support team if you have concerns about your account security.</p>
+                </div>
+                
+                <p style="font-size: 16px; line-height: 1.6; color: #444;">We're excited to have you join our community!</p>
+            </div>
+            
+            <!-- Footer -->
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; color: #777777; font-size: 12px;">
+                <p style="margin-bottom: 10px;">© ${new Date().getFullYear()} MegaBasket. All rights reserved.</p>
+                <div style="margin-bottom: 15px;">
+                    <a href="${process.env.FRONTEND_URL}/contact" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Contact Us</a> |
+                    <a href="${process.env.FRONTEND_URL}/faq" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">FAQs</a> |
+                    <a href="${process.env.FRONTEND_URL}/terms" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Terms & Conditions</a> |
+                    <a href="${process.env.FRONTEND_URL}/privacy" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/facebook-icon.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
+                    <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/twitter-icon.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
+                    <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/instagram-icon.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
+                </div>
+                <p style="font-size: 11px; color: #999;">If you have any questions, please contact our customer service team at <a href="mailto:support@megabasket.com" style="color: #4CAF50;">support@megabasket.com</a></p>
+            </div>
+        </body>
+        </html>
+    `;
+
     await sendEmail({
         email: user.email,
-        subject: 'Your OTP for MegaBasket Registration',
-        message: `<p>Your One-Time Password (OTP) is: <strong>${otp}</strong>. It is valid for 10 minutes.</p>`,
+        subject: 'Your MegaBasket Verification Code',
+        message: otpMessage,
     });
 
     res.status(200).json({ message: 'OTP sent to your email. Please verify.' });
 });
+
+// Helper function to send welcome email
+const sendWelcomeEmail = async (user) => {
+    try {
+        // Get featured products for the welcome email
+        const featuredProducts = await Product.find({ status: 'Published' })
+            .sort({ createdAt: -1 })
+            .limit(4);
+        
+        const welcomeMessage = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Welcome to MegaBasket!</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; color: #333333; background-color: #f9f9f9;">
+                <!-- Header -->
+                <div style="background: linear-gradient(135deg, #4CAF50, #2E8B57); padding: 30px 20px; text-align: center;">
+                    <img src="${process.env.FRONTEND_URL}/logo.png" alt="MegaBasket Logo" style="max-height: 60px; margin-bottom: 10px;">
+                    <h1 style="color: white; margin: 0; font-size: 24px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Welcome to MegaBasket!</h1>
+                </div>
+                
+                <!-- Content -->
+                <div style="max-width: 600px; margin: 0 auto; padding: 30px 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: -20px; position: relative;">
+                    <p style="font-size: 16px; line-height: 1.6; color: #444;">Hi ${user.name},</p>
+                    <p style="font-size: 16px; line-height: 1.6; color: #444;">Welcome to MegaBasket! We're thrilled to have you join our community of savvy shoppers. Your account has been successfully created, and you're now ready to explore all that we have to offer.</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.FRONTEND_URL}" style="display: inline-block; background-color: #4CAF50; color: white; text-decoration: none; padding: 14px 30px; border-radius: 4px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Shop Now</a>
+                    </div>
+                    
+                    ${featuredProducts.length > 0 ? `
+                        <div style="margin: 30px 0;">
+                            <h3 style="color: #2E8B57; text-align: center; margin-bottom: 20px;">Featured Products You Might Like</h3>
+                            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+                                ${featuredProducts.map(product => `
+                                    <div style="width: 45%; min-width: 120px; text-align: center; margin-bottom: 15px;">
+                                        <img src="${product.images[0]}" alt="${product.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;">
+                                        <p style="font-weight: bold; margin: 5px 0; font-size: 14px;">${product.name}</p>
+                                        <p style="color: #4CAF50; margin: 5px 0; font-size: 14px;">₹${product.price.toFixed(2)}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div style="background-color: #f5f9f5; border-left: 4px solid #4CAF50; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                        <h4 style="margin-top: 0; color: #2E8B57;">Your MegaBasket Benefits:</h4>
+                        <ul style="padding-left: 20px; margin-bottom: 0;">
+                            <li>Access to exclusive deals and promotions</li>
+                            <li>Fast checkout with saved addresses</li>
+                            <li>Order tracking and history</li>
+                            <li>Personalized product recommendations</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="font-size: 16px; line-height: 1.6; color: #444; margin-bottom: 30px;">If you have any questions or need assistance, our customer service team is always ready to help!</p>
+                    
+                    <div style="text-align: center;">
+                        <a href="${process.env.FRONTEND_URL}/contact" style="color: #4CAF50; text-decoration: none;">Contact Support</a>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; color: #777777; font-size: 12px;">
+                    <p style="margin-bottom: 10px;">© ${new Date().getFullYear()} MegaBasket. All rights reserved.</p>
+                    <div style="margin-bottom: 15px;">
+                        <a href="${process.env.FRONTEND_URL}/contact" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Contact Us</a> |
+                        <a href="${process.env.FRONTEND_URL}/faq" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">FAQs</a> |
+                        <a href="${process.env.FRONTEND_URL}/terms" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Terms & Conditions</a> |
+                        <a href="${process.env.FRONTEND_URL}/privacy" style="color: #4CAF50; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <a href="https://facebook.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/facebook-icon.png" alt="Facebook" style="width: 24px; height: 24px;"></a>
+                        <a href="https://twitter.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/twitter-icon.png" alt="Twitter" style="width: 24px; height: 24px;"></a>
+                        <a href="https://instagram.com/megabasket" style="display: inline-block; margin: 0 5px;"><img src="${process.env.FRONTEND_URL}/images/instagram-icon.png" alt="Instagram" style="width: 24px; height: 24px;"></a>
+                    </div>
+                    <p style="font-size: 11px; color: #999;">If you have any questions, please contact our customer service team at <a href="mailto:support@megabasket.com" style="color: #4CAF50;">support@megabasket.com</a></p>
+                </div>
+            </body>
+            </html>
+        `;
+
+        await sendEmail({
+            email: user.email,
+            subject: 'Welcome to MegaBasket!',
+            message: welcomeMessage,
+        });
+    } catch (error) {
+        console.error('Failed to send welcome email:', error);
+    }
+};
 
 // @desc    Verify OTP and complete registration
 // @route   POST /api/auth/verify-otp
@@ -59,6 +209,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
+
+    // Send welcome email
+    await sendWelcomeEmail(user);
 
     res.status(201).json({
         _id: user._id,
@@ -145,7 +298,11 @@ const googleAuth = asyncHandler(async (req, res) => {
             profilePicture: picture,
             isVerified: true,
         });
+        
+        // Send welcome email for new Google OAuth users
+        await sendWelcomeEmail(user);
     }
+    
     res.json({
         _id: user._id,
         name: user.name,
