@@ -6,7 +6,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import '../AddressModal.css'; // Reusing styles
 import './ProductModal.css';
 
-const ProductModal = ({ isOpen, onClose, onSave, product }) => {
+const ProductModal = ({ isOpen, onClose, onSave, product, isSaving }) => {
     const [formData, setFormData] = useState({
         name: '', description: '', category: '', price: 0, discount: 0, stock: 0,
         tags: '', shippingInfo: '', status: 'Published', brand: '', color: ''
@@ -21,6 +21,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }) => {
     const [finalPrice, setFinalPrice] = useState(0);
     const [defaultPhotoPreview, setDefaultPhotoPreview] = useState('');
     const [additionalPhotoPreviews, setAdditionalPhotoPreviews] = useState([]);
+    const [removedImageUrls, setRemovedImageUrls] = useState([]);
     
     // Cropper state
     const [upImg, setUpImg] = useState();
@@ -69,6 +70,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }) => {
         setDefaultPhoto(null);
         setUpImg(null);
         setCroppingFor(null);
+        setRemovedImageUrls([]); // Reset removed images list when modal opens
     }, [product, isOpen]);
 
     useEffect(() => {
@@ -165,8 +167,11 @@ const ProductModal = ({ isOpen, onClose, onSave, product }) => {
 
     const removeAdditionalPhoto = (index, isExisting) => {
         if (isExisting) {
-            // This would require backend logic to remove a specific image URL.
-            // For now, we'll just remove from preview. A more robust solution would track removed URLs.
+            // Store URL of removed image to delete from S3
+            const imageUrl = additionalPhotoPreviews[index];
+            setRemovedImageUrls(prev => [...prev, imageUrl]);
+            
+            // Remove from preview
             setAdditionalPhotoPreviews(prev => prev.filter((_, i) => i !== index));
         } else {
             // Find the correct index in the new photos array
@@ -182,8 +187,22 @@ const ProductModal = ({ isOpen, onClose, onSave, product }) => {
         Object.keys(formData).forEach(key => data.append(key, formData[key]));
         data.append('specifications', JSON.stringify(specifications.filter(s => s.key && s.value)));
         data.append('subCategory', JSON.stringify(selectedSubCategories));
-        if (defaultPhoto) data.append('defaultPhoto', defaultPhoto);
+        
+        // Add removed image URLs to formData
+        data.append('removedImages', JSON.stringify(removedImageUrls));
+        
+        // Handle default image replacement
+        if (defaultPhoto) {
+            if (product && product.images.length > 0) {
+                // If replacing default photo, add old URL to removed list
+                data.append('removedImages', JSON.stringify([product.images[0]]));
+            }
+            data.append('defaultPhoto', defaultPhoto);
+        }
+        
+        // Add new additional photos
         additionalPhotos.forEach(photo => data.append('additionalPhotos', photo));
+        
         onSave(data, product?._id);
     };
 
