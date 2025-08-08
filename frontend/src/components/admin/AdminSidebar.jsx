@@ -11,9 +11,42 @@ const AdminSidebar = ({ isOpen, sidebarRef }) => {
                 const token = JSON.parse(localStorage.getItem('adminInfo'))?.token;
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 const { data } = await axios.get('/api/admin/counts', config);
-                setCounts(data);
+                
+                // If we need to fetch offers count separately
+                let offerCount = data.offers;
+                
+                // If offers count is missing, fetch it directly from offers endpoint
+                if (!offerCount) {
+                    try {
+                        const offersResponse = await axios.get('/api/offers', config);
+                        // Count total products in all offers
+                        let totalProducts = 0;
+                        
+                        // Process deals of the day
+                        const dealsOffer = offersResponse.data.find(o => o.type === 'DEAL_OF_THE_DAY');
+                        if (dealsOffer && dealsOffer.products) {
+                            totalProducts += dealsOffer.products.length;
+                        }
+                        
+                        // Process custom offers
+                        const customOffers = offersResponse.data.filter(o => o.type === 'CUSTOM_OFFER');
+                        customOffers.forEach(offer => {
+                            if (offer.products) {
+                                totalProducts += offer.products.length;
+                            }
+                        });
+                        
+                        // Set the count with updated offers
+                        setCounts({...data, offers: totalProducts});
+                    } catch (offerError) {
+                        console.error("Failed to fetch offers count:", offerError);
+                        setCounts(data);
+                    }
+                } else {
+                    setCounts(data);
+                }
             } catch (error) {
-                console.error("Failed to fetch admin counts");
+                console.error("Failed to fetch admin counts:", error);
             }
         };
         fetchCounts();
@@ -24,7 +57,7 @@ const AdminSidebar = ({ isOpen, sidebarRef }) => {
             <nav>
                 <ul>
                     <li><NavLink to="/admin/dashboard">Dashboard</NavLink></li>
-                    <li><NavLink to="/admin/offers">Offers</NavLink></li>
+                    <li><NavLink to="/admin/offers">Offers <span className="sidebar-count-badge">{counts?.offers}</span></NavLink></li>
                     <li><NavLink to="/admin/products">Products <span className="sidebar-count-badge">{counts?.products}</span></NavLink></li>
                     <li><NavLink to="/admin/categories">Categories <span className="sidebar-count-badge">{counts?.categories}</span></NavLink></li>
                     <li><NavLink to="/admin/subcategories">Sub Categories <span className="sidebar-count-badge">{counts?.subCategories}</span></NavLink></li>
