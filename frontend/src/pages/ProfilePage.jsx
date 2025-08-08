@@ -364,14 +364,6 @@ const ProfilePage = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="preloader">
-                <p>Loading Cart...</p>
-            </div>
-        );
-    }
-
     return (
         <>
             <Meta title="My Profile | MegaBasket" description="Manage your profile, addresses, and view your order history on MegaBasket." noIndex={true} />

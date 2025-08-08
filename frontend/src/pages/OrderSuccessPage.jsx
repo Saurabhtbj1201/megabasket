@@ -46,7 +46,7 @@ const OrderSuccessPage = () => {
     if (loading) {
         return (
             <div className="preloader">
-                <p>Loading Cart...</p>
+                <p>Processing...</p>
             </div>
         );
     }

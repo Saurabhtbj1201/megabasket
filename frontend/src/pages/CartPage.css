@@ -132,6 +132,7 @@
 .empty-cart {
     text-align: center;
     padding: 4rem 0;
+    height: 55vh;
 }
 
 .empty-cart p {

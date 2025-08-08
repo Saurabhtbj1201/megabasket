@@ -31,7 +31,6 @@ const CategoryPage = () => {
 
     useEffect(() => {
         const fetchInitialData = async () => {
-            setLoading(true);
             try {
                 const [categoriesRes, subCategoriesRes] = await Promise.all([
                     axios.get('/api/categories'),
@@ -41,13 +40,19 @@ const CategoryPage = () => {
                 setSubCategories(subCategoriesRes.data);
                 const currentCat = categoriesRes.data.find(c => c._id === categoryId);
                 setCategoryName(currentCat?.name || 'Category');
-                setSelectedSubCategoryId(subcategoryParam); // Set from URL param
+                setSelectedSubCategoryId(subcategoryParam);
+                
+                // Now fetch products
+                if (categoriesRes.data.length > 0) {
+                    const { data } = await axios.get(`/api/products/categories?ids=${categoryId}`);
+                    setProducts(data);
+                }
+                
             } catch (error) {
                 toast.error('Could not fetch page data.');
-            } finally {
-                setLoading(false);
             }
         };
+        
         fetchInitialData();
     }, [categoryId, subcategoryParam]);
 
@@ -69,15 +74,14 @@ const CategoryPage = () => {
 
     useEffect(() => {
         const fetchProducts = async () => {
-            setLoading(true);
-            // If no categories are selected in filter, use the one from the URL param
+            if (!allCategories.length) return;
+            
             const categoryIdsToFetch = filters.categories.length > 0 
                 ? allCategories.filter(c => filters.categories.includes(c.name)).map(c => c._id)
                 : [categoryId];
 
             if (categoryIdsToFetch.length === 0) {
                 setProducts([]);
-                setLoading(false);
                 return;
             }
 
@@ -86,12 +90,10 @@ const CategoryPage = () => {
                 setProducts(data);
             } catch (error) {
                 toast.error('Could not fetch products.');
-            } finally {
-                setLoading(false);
             }
         };
 
-        if (allCategories.length > 0) {
+        if (allCategories.length > 0 && !loading) {
             fetchProducts();
         }
     }, [categoryId, filters.categories, allCategories]);
@@ -102,7 +104,6 @@ const CategoryPage = () => {
     }, [subCategories, categoryId]);
 
     const filteredProducts = useMemo(() => {
-        // Category filter is now handled by the API call, so we only apply other filters here.
         return products.filter(product => {
             const finalPrice = product.price - (product.price * product.discount / 100);
             const { price, tags, brands, colors } = filters;
@@ -171,12 +172,7 @@ const CategoryPage = () => {
                         <FilterSidebar products={products} allCategories={allCategories} onFilterChange={setFilters} />
                     </aside>
                     <div className="category-results">
-                        {loading ? (
-                            <div className="page-status-container">
-                                <div className="loader"></div>
-                                <p className="loading-text">Loading products...</p>
-                            </div>
-                        ) : filteredProducts.length > 0 ? (
+                        {filteredProducts.length > 0 ? (
                             <div className="category-product-grid">
                                 {filteredProducts.map(product => (
                                     <ProductCard key={product._id} product={product} />

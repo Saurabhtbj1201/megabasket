@@ -133,13 +133,7 @@ const CheckoutPage = () => {
         setIsAddressModalOpen(true);
     };
 
-    if (loading) {
-        return (
-            <div className="preloader">
-                <p>Loading Cart...</p>
-            </div>
-        );
-    }
+  
 
     return (
         <>
