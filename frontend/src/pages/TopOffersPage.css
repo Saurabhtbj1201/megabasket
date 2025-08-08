@@ -5,11 +5,53 @@
     color: var(--dark-color);
 }
 
+.top-offers-section-title {
+    margin: 2rem 0 1rem;
+    font-size: 1.75rem;
+    color: var(--dark-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.special-offer-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow: hidden; /* Prevents content overflow */
+}
+
+.special-offer-title {
+    font-size: 1.5rem;
+    color: var(--dark-color);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+/* Deals of the Day section styling */
+.deals-of-day {
+    background-color: rgba(255, 193, 7, 0.1); /* Light yellow background */
+}
+
+.deals-of-day .special-offer-title {
+    color: #d97706; /* Amber color */
+}
+
+/* Custom offer section styling */
+.custom-offer {
+    background-color: rgba(52, 152, 219, 0.1); /* Light blue background */
+}
+
+.custom-offer .special-offer-title {
+    color: #2980b9; /* Blue color */
+}
+
 .offers-container {
     display: flex;
     flex-direction: column;
     gap: 3rem;
     padding-bottom: 3rem;
+    width: 100%;
 }
 
 .discount-section {
@@ -17,6 +59,7 @@
     border-radius: 8px;
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    width: 100%;
 }
 
 .discount-section-title {
@@ -32,23 +75,179 @@
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1.5rem;
     justify-items: center;
+    width: 100%;
 }
 
+/* Style for Deals of the Day */
+#deals-of-day.product-carousel-section {
+    background-color: rgba(255, 193, 7, 0.1); /* Light yellow background */
+}
+
+#deals-of-day.product-carousel-section .section-title {
+    color: #d97706; /* Amber color */
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+/* Style for Custom offers */
+[id^="offer-"].product-carousel-section {
+    background-color: rgba(52, 152, 219, 0.1); /* Light blue background */
+}
+
+[id^="offer-"].product-carousel-section .section-title {
+    color: #2980b9; /* Blue color */
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+/* Tablet Responsiveness */
+@media (max-width: 992px) {
+    .top-offers-page-title {
+        font-size: 1.75rem;
+        margin: 1.5rem 0;
+    }
+    
+    .special-offer-title {
+        font-size: 1.5rem;
+    }
+    
+    .discount-section {
+        padding: 1.25rem;
+    }
+    
+    .offers-product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
     .top-offers-page-title {
         font-size: 1.5rem;
+        margin: 1.25rem 0;
+    }
+
+    .top-offers-section-title {
+        font-size: 1.3rem;
+        margin: 1.5rem 0 0.75rem;
+    }
+
+    .special-offer-section {
+        padding: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .special-offer-title {
+        font-size: 1.3rem;
+        margin-bottom: 0.75rem;
     }
 
     .discount-section {
-        padding: 1rem;
+        padding: 1rem 0.75rem;
     }
 
     .discount-section-title {
         font-size: 1.2rem;
+        margin-bottom: 1rem;
     }
 
     .offers-product-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1rem;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    /* Override product card styling specifically in TopOffersPage */
+    .offers-product-grid .product-card {
+        min-width: 100%;
+        max-width: 100%;
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 0.5rem;
+        height: auto;
+    }
+    
+    .offers-product-grid .product-image-container {
+        width: 120px;
+        min-width: 120px;
+        height: 120px;
+        border-radius: 0;
+    }
+
+    .offers-product-grid .product-info {
+        padding: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .offers-product-grid .product-title {
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+        white-space: normal;
+        overflow: visible;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+    }
+
+    .offers-product-grid .product-description {
+        display: none; /* Hide description on mobile */
+    }
+
+    .offers-product-grid .product-price {
+        font-size: 1rem;
+        margin-top: 0.25rem;
+    }
+
+    .offers-product-grid .product-actions {
+        display: flex;
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+
+    .offers-product-grid .product-actions .action-btn {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+    }
+    
+    .offers-product-grid .best-deal-tag,
+    .offers-product-grid .stock-tag {
+        top: 5px;
+        left: 5px;
+        font-size: 0.7rem;
+        padding: 0.1rem 0.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-offers-page-title {
+        font-size: 1.25rem;
+    }
+    
+    .special-offer-title,
+    .top-offers-section-title,
+    .discount-section-title {
+        font-size: 1.1rem;
+    }
+    
+    .special-offer-section {
+        padding: 0.5rem;
+    }
+    
+    .discount-section {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .offers-product-grid .product-image-container {
+        width: 100px;
+        min-width: 100px;
+        height: 100px;
+    }
+    
+    .offers-product-grid .product-title {
+        font-size: 0.9rem;
     }
 }

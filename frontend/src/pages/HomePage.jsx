@@ -13,10 +13,16 @@ import './AllCategoriesPage.css'; // For shared status styles
 const HomePage = () => {
     const { userInfo } = useAuth();
     const [topOffers, setTopOffers] = useState([]);
+    const [dynamicOffers, setDynamicOffers] = useState([]);
     const [productsByCategory, setProductsByCategory] = useState([]);
     const [recentlyVisited, setRecentlyVisited] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Add this useEffect to reset scroll position when component mounts
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     useEffect(() => {
         const fetchHomePageData = async () => {
@@ -27,8 +33,20 @@ const HomePage = () => {
                 const { data: offersData } = await axios.get('/api/products/top-offers');
                 setTopOffers(offersData);
 
+                // Try to fetch dynamic offers, but don't fail if endpoint doesn't exist yet
+                try {
+                    const { data: dynamicOffersData } = await axios.get('/api/offers');
+                    setDynamicOffers(dynamicOffersData);
+                } catch (offerError) {
+                    console.log("Offers endpoint not available yet:", offerError);
+                    // Set empty array for offers - this is expected if the endpoint isn't set up yet
+                    setDynamicOffers([]);
+                }
+
                 // Fetch Categories and then products for each
                 const { data: categoriesData } = await axios.get('/api/categories');
+                
+                // Fix: categoriesData is already the array, not categoriesData.data
                 const categoryProductPromises = categoriesData.map(cat =>
                     axios.get(`/api/products/category/${cat._id}`)
                 );
@@ -110,6 +128,9 @@ const HomePage = () => {
         );
     }
 
+    const dealsOfTheDay = dynamicOffers.find(o => o.type === 'DEAL_OF_THE_DAY');
+    const customOffers = dynamicOffers.filter(o => o.type === 'CUSTOM_OFFER');
+
     return (
         <>
             <Meta />
@@ -117,10 +138,30 @@ const HomePage = () => {
                 <BannerSlider />
                 <CategoryNav />
                 <div className="container">
+                    {/* Deals of the Day Carousel - Only show if exists */}
+                    {dealsOfTheDay && dealsOfTheDay.products && dealsOfTheDay.products.length > 0 && (
+                        <ProductCarousel 
+                            title={dealsOfTheDay.title} 
+                            products={dealsOfTheDay.products} 
+                            viewAllLink="/products/offers#deals-of-day"
+                        />
+                    )}
+
+                    {/* Custom Offers Carousels - Only show if they exist */}
+                    {customOffers && customOffers.length > 0 && customOffers.map(offer => (
+                        offer.products && offer.products.length > 0 && (
+                            <ProductCarousel 
+                                key={offer._id} 
+                                title={offer.title} 
+                                products={offer.products} 
+                                viewAllLink={`/products/offers#offer-${offer._id}`}
+                            />
+                        )
+                    ))}
+
                     {userInfo && recentlyVisited.length > 0 && (
                         <div className="recommendations-container">
-                            <ProductGrid title="Recently Visited" products={recentlyVisited} viewAllLink="/history/visited" />
-                            {/* Placeholders for similar and recommended */}
+                            <ProductGrid title="Recently Visited" products={recentlyVisited} viewAllLink="/profile?tab=activity" />
                             <ProductGrid title="Similar Products" products={topOffers.slice(0, 4)} />
                             <ProductGrid title="Recommended For You" products={topOffers.slice(4, 8)} />
                         </div>

@@ -24,6 +24,7 @@ const AdminSidebar = ({ isOpen, sidebarRef }) => {
             <nav>
                 <ul>
                     <li><NavLink to="/admin/dashboard">Dashboard</NavLink></li>
+                    <li><NavLink to="/admin/offers">Offers</NavLink></li>
                     <li><NavLink to="/admin/products">Products <span className="sidebar-count-badge">{counts?.products}</span></NavLink></li>
                     <li><NavLink to="/admin/categories">Categories <span className="sidebar-count-badge">{counts?.categories}</span></NavLink></li>
                     <li><NavLink to="/admin/subcategories">Sub Categories <span className="sidebar-count-badge">{counts?.subCategories}</span></NavLink></li>

@@ -12,9 +12,10 @@ import Meta from '../components/Meta';
 import './ProfilePage.css';
 import { useSearchParams } from 'react-router-dom';
 import './AllCategoriesPage.css'; // For shared status styles
+import ProductCard from '../components/ProductCard';
 
 const ProfilePage = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'details');
     const { userInfo, updateUserInfo } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
@@ -22,6 +23,9 @@ const ProfilePage = () => {
     const [editingAddress, setEditingAddress] = useState(null);
     const [isSavingAddress, setIsSavingAddress] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [activeActivityTab, setActiveActivityTab] = useState('visited');
+    const [recentlyVisited, setRecentlyVisited] = useState([]);
+    const [activityLoading, setActivityLoading] = useState(false);
 
     // Form states
     const [name, setName] = useState('');
@@ -79,6 +83,32 @@ const ProfilePage = () => {
             fetchOrders();
         }
     }, [token, activeTab]);
+
+    useEffect(() => {
+        const fetchActivityData = async () => {
+            if (activeTab === 'activity' && activeActivityTab === 'visited') {
+                setActivityLoading(true);
+                const visitedIds = JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
+                if (visitedIds.length > 0) {
+                    try {
+                        // This assumes you have an endpoint that can fetch multiple products by IDs
+                        // If not, you'd fetch all and filter, or fetch one by one.
+                        const { data: allProducts } = await axios.get('/api/products');
+                        const visitedProducts = allProducts.filter(p => visitedIds.includes(p._id));
+                        // Preserve the order from recentlyVisited
+                        const orderedVisitedProducts = visitedIds
+                            .map(id => visitedProducts.find(p => p._id === id))
+                            .filter(p => p); // Filter out any products that might not have been found
+                        setRecentlyVisited(orderedVisitedProducts);
+                    } catch (error) {
+                        toast.error("Could not fetch recently visited products.");
+                    }
+                }
+                setActivityLoading(false);
+            }
+        };
+        fetchActivityData();
+    }, [activeTab, activeActivityTab]);
 
     const handleSaveAddress = async (addressData) => {
         setIsSavingAddress(true);
@@ -199,6 +229,37 @@ const ProfilePage = () => {
         }
     };
 
+    const renderActivityContent = () => {
+        switch (activeActivityTab) {
+            case 'visited':
+                return (
+                    <div>
+                        <h3>Recently Visited Products</h3>
+                        {activityLoading ? (
+                            <p>Loading visited products...</p>
+                        ) : recentlyVisited.length > 0 ? (
+                            <div className="visited-products-grid">
+                                {recentlyVisited.map(product => (
+                                    <ProductCard key={product._id} product={product} />
+                                ))}
+                            </div>
+                        ) : (
+                            <p>You have not visited any products recently.</p>
+                        )}
+                    </div>
+                );
+            case 'devices':
+                return (
+                    <div>
+                        <h3>Logged-in Devices</h3>
+                        <p>This feature is coming soon. You will be able to see and manage all devices logged into your account here.</p>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
     const renderDetailsContent = () => {
         if (isEditing) {
             return (
@@ -276,6 +337,18 @@ const ProfilePage = () => {
                     </div>
                 </div>
             );
+            case 'activity': return (
+                <div>
+                    <h2>My Activity</h2>
+                    <div className="activity-nav">
+                        <button onClick={() => setActiveActivityTab('visited')} className={activeActivityTab === 'visited' ? 'active' : ''}>Recently Visited</button>
+                        <button onClick={() => setActiveActivityTab('devices')} className={activeActivityTab === 'devices' ? 'active' : ''}>Logged-in Devices</button>
+                    </div>
+                    <div className="activity-content">
+                        {renderActivityContent()}
+                    </div>
+                </div>
+            );
             case 'password': return (
                 <div>
                     <h2>Change Password</h2>
@@ -328,6 +401,7 @@ const ProfilePage = () => {
                             <li><button onClick={() => setActiveTab('details')} className={activeTab === 'details' ? 'active' : ''}>Personal Details</button></li>
                             <li><button onClick={() => setActiveTab('addresses')} className={activeTab === 'addresses' ? 'active' : ''}>My Addresses</button></li>
                             <li><button onClick={() => setActiveTab('orders')} className={activeTab === 'orders' ? 'active' : ''}>My Orders</button></li>
+                            <li><button onClick={() => setActiveTab('activity')} className={activeTab === 'activity' ? 'active' : ''}>My Activity</button></li>
                             <li><button onClick={() => setActiveTab('password')} className={activeTab === 'password' ? 'active' : ''}>Change Password</button></li>
                         </ul>
                     </nav>

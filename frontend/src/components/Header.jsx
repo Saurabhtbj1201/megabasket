@@ -109,6 +109,7 @@ const Header = () => {
                 <ul className="profile-dropdown">
                   <li><Link to="/profile" onClick={() => setDropdownOpen(false)}>Profile</Link></li>
                   <li><Link to="/profile?tab=orders" onClick={() => setDropdownOpen(false)}>Orders</Link></li>
+                  <li><Link to="/profile?tab=activity" onClick={() => setDropdownOpen(false)}>My Activity</Link></li>
                   <li><button onClick={() => { logout(); setDropdownOpen(false); }}>Logout</button></li>
                 </ul>
               )}

@@ -41,6 +41,7 @@ import AdminRoute from './components/AdminRoute';
 
 // Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminOffersPage from './pages/admin/AdminOffersPage';
 import AdminProductPage from './pages/admin/AdminProductPage';
 import AdminCategoryPage from './pages/admin/AdminCategoryPage';
 import AdminOrderPage from './pages/admin/AdminOrderPage';
@@ -85,6 +86,7 @@ function App() {
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/offers" element={<AdminOffersPage />} />
             <Route path="/admin/products" element={<AdminProductPage />} />
             <Route path="/admin/categories" element={<AdminCategoryPage />} />
             <Route path="/admin/subcategories" element={<AdminSubCategoryPage />} />
