@@ -9,6 +9,7 @@ import { FaArrowUp } from 'react-icons/fa';
 import Meta from '../components/Meta';
 import './SearchPage.css';
 import '@/pages/CategoryPage.css'; // Reusing some styles like overlay
+import './AllCategoriesPage.css'; // For shared status styles
 
 const SearchPage = () => {
     const [searchParams] = useSearchParams();
@@ -16,6 +17,7 @@ const SearchPage = () => {
     const [allCategories, setAllCategories] = useState([]);
     const [allSubCategories, setAllSubCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filters, setFilters] = useState({
         price: { min: '', max: '' },
@@ -48,6 +50,7 @@ const SearchPage = () => {
         const fetchPageData = async () => {
             if (query) {
                 setLoading(true);
+                setError(null);
                 try {
                     const [productsRes, categoriesRes, subCategoriesRes] = await Promise.all([
                         axios.get(`/api/products/search?keyword=${query}`),
@@ -59,6 +62,7 @@ const SearchPage = () => {
                     setAllSubCategories(subCategoriesRes.data);
                 } catch (error) {
                     toast.error('Could not fetch search results.');
+                    setError(`Failed to fetch search results: ${error.message}`);
                 } finally {
                     setLoading(false);
                 }
@@ -101,8 +105,25 @@ const SearchPage = () => {
 
     const renderContent = () => {
         if (loading) {
-            return <p>Finding products...</p>;
+            return (
+                <div className="page-status-container">
+                    <div className="loader"></div>
+                    <p className="loading-text">Finding products...</p>
+                </div>
+            );
         }
+
+        if (error) {
+            return (
+                <div className="page-status-container error-container">
+                    <div className="error-icon">!</div>
+                    <h2>Search Unavailable</h2>
+                    <p>We're having trouble with our search right now. Please try again in a moment.</p>
+                    <p className="error-details">Details: {error}</p>
+                </div>
+            );
+        }
+
         if (filteredProducts.length > 0) {
             return (
                 <div className="search-results-grid">
@@ -112,7 +133,12 @@ const SearchPage = () => {
                 </div>
             );
         }
-        return <p>No products found matching your criteria.</p>;
+        return (
+            <div className="page-status-container">
+                <h3>No products found for "{query}"</h3>
+                <p>Try checking your spelling or using more general terms.</p>
+            </div>
+        );
     };
 
     const scrollToTop = () => {
@@ -138,15 +164,7 @@ const SearchPage = () => {
                         <FilterSidebar products={products} allCategories={allCategories} allSubCategories={allSubCategories} onFilterChange={setFilters} />
                     </aside>
                     <div className="search-results">
-                        {loading ? <p>Finding products...</p> : (
-                            filteredProducts.length > 0 ? (
-                                <div className="search-results-grid">
-                                    {filteredProducts.map(product => (
-                                        <ProductCard key={product._id} product={product} />
-                                    ))}
-                                </div>
-                            ) : <p>No products found matching your criteria.</p>
-                        )}
+                        {renderContent()}
                     </div>
                 </div>
             </div>

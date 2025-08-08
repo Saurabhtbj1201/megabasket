@@ -8,6 +8,7 @@ import AddressModal from '../components/AddressModal';
 import { FiLock, FiUser, FiPhone, FiHome, FiEdit } from 'react-icons/fi';
 import Meta from '../components/Meta';
 import './CheckoutPage.css';
+import './AllCategoriesPage.css'; // For shared status styles
 
 const CheckoutPage = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -132,7 +133,14 @@ const CheckoutPage = () => {
         setIsAddressModalOpen(true);
     };
 
-    if (loading) return <div className="container"><h2>Loading Checkout...</h2></div>;
+    if (loading) {
+        return (
+            <div className="page-status-container">
+                <div className="loader"></div>
+                <p className="loading-text">Loading Checkout...</p>
+            </div>
+        );
+    }
 
     return (
         <>

@@ -38,6 +38,7 @@ const ProductCard = ({ product }) => {
     return (
         <Link to={`/product/${product._id}`} className="product-card">
             {product.stock <= 10 && <div className="stock-tag">Few left</div>}
+            {product.discount >= 20 && <div className="best-deal-tag">Best Deal</div>}
             <div className="product-image-container">
                 <img src={product.images[0]} alt={product.name} className="product-image" loading="lazy" />
             </div>

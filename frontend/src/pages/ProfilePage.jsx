@@ -11,6 +11,7 @@ import { formatCurrency } from '../utils/formatCurrency';
 import Meta from '../components/Meta';
 import './ProfilePage.css';
 import { useSearchParams } from 'react-router-dom';
+import './AllCategoriesPage.css'; // For shared status styles
 
 const ProfilePage = () => {
     const [searchParams] = useSearchParams();
@@ -20,6 +21,7 @@ const ProfilePage = () => {
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
     const [editingAddress, setEditingAddress] = useState(null);
     const [isSavingAddress, setIsSavingAddress] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Form states
     const [name, setName] = useState('');
@@ -42,6 +44,7 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const fetchProfileData = async () => {
+            setLoading(true);
             try {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 const { data } = await axios.get('/api/users/profile', config);
@@ -52,6 +55,8 @@ const ProfilePage = () => {
                 setAddresses(data.addresses || []);
             } catch (error) {
                 toast.error("Failed to fetch profile data.");
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -285,6 +290,15 @@ const ProfilePage = () => {
             default: return null;
         }
     };
+
+    if (loading) {
+        return (
+            <div className="page-status-container">
+                <div className="loader"></div>
+                <p className="loading-text">Loading Profile...</p>
+            </div>
+        );
+    }
 
     return (
         <>

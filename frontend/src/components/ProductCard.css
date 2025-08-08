@@ -110,6 +110,18 @@
     color: white;
 }
 
+.best-deal-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: var(--success-color);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
 .stock-tag {
     position: absolute;
     top: 10px;

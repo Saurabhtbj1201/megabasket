@@ -12,17 +12,25 @@
     padding: 1rem;
     border-radius: 8px;
 }
+
 .recommendation-grid:nth-of-type(4n+1) {
-    background-color: rgba(0, 123, 255, 0.07); /* primary with opacity */
+    background-color: rgba(0, 123, 255, 0.07);
+    /* primary with opacity */
 }
+
 .recommendation-grid:nth-of-type(4n+2) {
-    background-color: rgba(40, 167, 69, 0.07); /* success with opacity */
+    background-color: rgba(40, 167, 69, 0.07);
+    /* success with opacity */
 }
+
 .recommendation-grid:nth-of-type(4n+3) {
-    background-color: rgba(255, 193, 7, 0.07); /* warning with opacity */
+    background-color: rgba(255, 193, 7, 0.07);
+    /* warning with opacity */
 }
+
 .recommendation-grid:nth-of-type(4n+4) {
-    background-color: rgba(108, 117, 125, 0.07); /* secondary with opacity */
+    background-color: rgba(108, 117, 125, 0.07);
+    /* secondary with opacity */
 }
 
 .recommendation-grid .view-all-btn {
@@ -38,7 +46,7 @@
 /* Styles to make product cards smaller within the recommendation grid */
 .recommendation-grid .product-card {
     min-width: 150px;
-    }
+}
 
 .recommendation-grid .product-image-container {
     height: 120px;

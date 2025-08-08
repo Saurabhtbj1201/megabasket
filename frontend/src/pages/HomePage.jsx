@@ -8,15 +8,20 @@ import ProductGrid from '../components/ProductGrid';
 import Meta from '../components/Meta';
 import { FaArrowUp } from 'react-icons/fa';
 import './HomePage.css';
+import './AllCategoriesPage.css'; // For shared status styles
 
 const HomePage = () => {
     const { userInfo } = useAuth();
     const [topOffers, setTopOffers] = useState([]);
     const [productsByCategory, setProductsByCategory] = useState([]);
     const [recentlyVisited, setRecentlyVisited] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchHomePageData = async () => {
+            setLoading(true);
+            setError(null);
             try {
                 // Fetch Top Offers
                 const { data: offersData } = await axios.get('/api/products/top-offers');
@@ -37,6 +42,9 @@ const HomePage = () => {
 
             } catch (error) {
                 console.error("Failed to fetch home page data", error);
+                setError(`Failed to fetch home page data: ${error.message}`);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -80,6 +88,28 @@ const HomePage = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    if (loading) {
+        return (
+            <div className="page-status-container">
+                <div className="loader"></div>
+                <p className="loading-text">Loading Home Page...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="container">
+                <div className="page-status-container error-container">
+                    <div className="error-icon">!</div>
+                    <h2>Something Went Wrong</h2>
+                    <p>We're having trouble loading the page. Please check your connection and try again.</p>
+                    <p className="error-details">Details: {error}</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
             <Meta />
@@ -91,8 +121,8 @@ const HomePage = () => {
                         <div className="recommendations-container">
                             <ProductGrid title="Recently Visited" products={recentlyVisited} viewAllLink="/history/visited" />
                             {/* Placeholders for similar and recommended */}
-                            <ProductGrid title="Similar Products" products={topOffers.slice(0, 4)} viewAllLink="/products/similar" />
-                            <ProductGrid title="Recommended For You" products={topOffers.slice(4, 8)} viewAllLink="/products/recommended" />
+                            <ProductGrid title="Similar Products" products={topOffers.slice(0, 4)} />
+                            <ProductGrid title="Recommended For You" products={topOffers.slice(4, 8)} />
                         </div>
                     )}
 

@@ -7,6 +7,7 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { FiPackage, FiTruck, FiSearch } from 'react-icons/fi';
 import Meta from '../components/Meta';
 import './OrderSuccessPage.css';
+import './AllCategoriesPage.css'; // For shared status styles
 
 const OrderSuccessPage = () => {
     const { id } = useParams();
@@ -42,7 +43,14 @@ const OrderSuccessPage = () => {
         }
     }, [id, userInfo, navigate]);
 
-    if (loading) return <div className="container"><p>Loading your order confirmation...</p></div>;
+    if (loading) {
+        return (
+            <div className="page-status-container">
+                <div className="loader"></div>
+                <p className="loading-text">Loading your order confirmation...</p>
+            </div>
+        );
+    }
     if (!order) return null;
 
     const estimatedDeliveryDate = () => {

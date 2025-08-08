@@ -25,6 +25,7 @@ import ReturnPolicyPage from './pages/ReturnPolicyPage';
 import CancellationPolicyPage from './pages/CancellationPolicyPage';
 import CookiePolicyPage from './pages/CookiePolicyPage';
 import AllCategoriesPage from './pages/AllCategoriesPage';
+import TopOffersPage from './pages/TopOffersPage';
 import axios from 'axios';
 
 // Set axios base URL from env variable (works for both dev and prod)
@@ -65,6 +66,7 @@ function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order/:id" element={<OrderSuccessPage />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />
+          <Route path="/products/offers" element={<TopOffersPage />} />
           <Route path="/all-categories" element={<AllCategoriesPage />} />
           <Route path="/product/:id" element={<ProductDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />

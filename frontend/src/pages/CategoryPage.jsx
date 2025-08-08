@@ -8,6 +8,7 @@ import { FiFilter, FiX } from 'react-icons/fi';
 import { FaArrowUp } from 'react-icons/fa';
 import Meta from '../components/Meta';
 import './CategoryPage.css';
+import './AllCategoriesPage.css'; // For shared status styles
 
 const CategoryPage = () => {
     const { categoryId } = useParams();
@@ -171,7 +172,10 @@ const CategoryPage = () => {
                     </aside>
                     <div className="category-results">
                         {loading ? (
-                            <p>Loading products...</p>
+                            <div className="page-status-container">
+                                <div className="loader"></div>
+                                <p className="loading-text">Loading products...</p>
+                            </div>
                         ) : filteredProducts.length > 0 ? (
                             <div className="category-product-grid">
                                 {filteredProducts.map(product => (

@@ -88,11 +88,25 @@ const AllCategoriesPage = () => {
   };
 
   if (loading) {
-    return <div className="container"><p>Loading categories...</p></div>;
+    return (
+      <div className="page-status-container">
+        <div className="loader"></div>
+        <p className="loading-text">Loading Categories...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="container"><p className="error-message">Error: {error}</p></div>;
+    return (
+      <div className="container">
+        <div className="page-status-container error-container">
+          <div className="error-icon">!</div>
+          <h2>Something Went Wrong</h2>
+          <p>We're having trouble loading categories right now. Please check your connection and try again.</p>
+          <p className="error-details">Details: {error}</p>
+        </div>
+      </div>
+    );
   }
 
   if (!categories || categories.length === 0) {

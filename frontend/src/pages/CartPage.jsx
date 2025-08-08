@@ -8,6 +8,7 @@ import ProductCarousel from '../components/ProductCarousel';
 import { formatCurrency } from '../utils/formatCurrency';
 import Meta from '../components/Meta';
 import './CartPage.css';
+import './AllCategoriesPage.css'; // For shared status styles
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -94,7 +95,10 @@ const CartPage = () => {
         return (
             <>
                 <Meta title="Shopping Cart | MegaBasket" />
-                <div className="container empty-cart"><h2>Loading cart...</h2></div>
+                <div className="page-status-container">
+                    <div className="loader"></div>
+                    <p className="loading-text">Loading Cart...</p>
+                </div>
             </>
         );
     }

@@ -7,6 +7,7 @@ import { formatCurrency } from '../utils/formatCurrency';
 import ProductCarousel from '../components/ProductCarousel';
 import Meta from '../components/Meta';
 import './ProductDetailPage.css';
+import './AllCategoriesPage.css'; // For shared status styles
 
 const ProductDetailPage = () => {
     const { id } = useParams();
@@ -17,9 +18,11 @@ const ProductDetailPage = () => {
     const [recommendedProducts, setRecommendedProducts] = useState([]);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProduct = async () => {
+            setLoading(true);
             try {
                 const { data } = await axios.get(`/api/products/${id}`);
                 setProduct(data);
@@ -31,6 +34,8 @@ const ProductDetailPage = () => {
             } catch (error) {
                 toast.error('Could not fetch product details.');
                 navigate('/');
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -103,8 +108,17 @@ const ProductDetailPage = () => {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="page-status-container">
+                <div className="loader"></div>
+                <p className="loading-text">Loading Product...</p>
+            </div>
+        );
+    }
+
     if (!product) {
-        return <div className="container"><p>Loading...</p></div>; // Add a skeleton loader here later
+        return <div className="container"><p>Product not found.</p></div>;
     }
 
     const finalPrice = product.price - (product.price * product.discount / 100);
