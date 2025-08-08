@@ -15,6 +15,8 @@ const {
     createAdmin,
     updateAdmin,
     deleteAdmin,
+    getUserLoginActivity,
+    removeLoginSession 
 } = require('../controllers/userController');
 
 // Placeholder for admin functions
@@ -33,5 +35,12 @@ router.route('/admins/:id').put(protect, admin, upload.single('profilePicture'),
 
 router.route('/').get(protect, admin, getUsers);
 router.route('/:id').get(protect, admin, getUserById).delete(protect, admin, userController.deleteUser);
+
+// User login activity routes
+router.route('/profile/login-activity')
+  .get(protect, getUserLoginActivity);
+
+router.route('/profile/login-activity/:id')
+  .delete(protect, removeLoginSession);
 
 module.exports = router;

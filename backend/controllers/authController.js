@@ -5,6 +5,7 @@ const generateToken = require('../utils/generateToken');
 const sendEmail = require('../utils/sendEmail');
 const { OAuth2Client } = require('google-auth-library');
 const asyncHandler = require('express-async-handler');
+const LoginActivity = require('../models/loginActivityModel');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -232,6 +233,20 @@ const loginUser = asyncHandler(async (req, res) => {
     const email = req.body.email.toLowerCase();
     const user = await User.findOne({ email });
     if (user && user.isVerified && (await user.matchPassword(password))) {
+        // After successful authentication, record login activity
+        const { deviceInfo } = req.body;
+        
+        if (deviceInfo) {
+            await LoginActivity.create({
+                user: user._id,
+                deviceName: deviceInfo.deviceName || 'Unknown Device',
+                browser: deviceInfo.browser || 'Unknown Browser',
+                os: deviceInfo.os || 'Unknown OS',
+                ip: req.ip || 'Unknown IP',
+                location: deviceInfo.location || 'Unknown Location',
+            });
+        }
+
         res.json({
             _id: user._id,
             name: user.name,
@@ -272,7 +287,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/google
 // @access  Public
 const googleAuth = asyncHandler(async (req, res) => {
-    const { token } = req.body;
+    const { token, deviceInfo } = req.body;
     const ticket = await client.verifyIdToken({
         idToken: token,
         audience: process.env.GOOGLE_CLIENT_ID,
@@ -301,6 +316,18 @@ const googleAuth = asyncHandler(async (req, res) => {
         
         // Send welcome email for new Google OAuth users
         await sendWelcomeEmail(user);
+    }
+    
+    // Record login activity for Google sign-in
+    if (deviceInfo) {
+        await LoginActivity.create({
+            user: user._id,
+            deviceName: deviceInfo.deviceName || 'Unknown Device',
+            browser: deviceInfo.browser || 'Unknown Browser',
+            os: deviceInfo.os || 'Unknown OS',
+            ip: req.ip || 'Unknown IP',
+            location: deviceInfo.location || 'Unknown Location',
+        });
     }
     
     res.json({

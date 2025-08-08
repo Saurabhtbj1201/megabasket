@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const LoginActivity = require('../models/loginActivityModel');
 const asyncHandler = require('express-async-handler');
 
 // @desc    Get user profile
@@ -227,6 +228,41 @@ const deleteAdmin = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Get user login activity
+// @route   GET /api/users/profile/login-activity
+// @access  Private
+const getUserLoginActivity = asyncHandler(async (req, res) => {
+  const loginActivity = await LoginActivity.find({ 
+    user: req.user._id,
+    isActive: true 
+  }).sort({ lastActive: -1 });
+  
+  res.json(loginActivity);
+});
+
+// @desc    Remove login session (log out a device)
+// @route   DELETE /api/users/profile/login-activity/:id
+// @access  Private
+const removeLoginSession = asyncHandler(async (req, res) => {
+  const session = await LoginActivity.findById(req.params.id);
+  
+  if (!session) {
+    res.status(404);
+    throw new Error('Session not found');
+  }
+  
+  // Make sure the session belongs to the user
+  if (session.user.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error('Not authorized');
+  }
+  
+  session.isActive = false;
+  await session.save();
+  
+  res.json({ message: 'Device logged out successfully' });
+});
+
 module.exports = {
     getUserProfile,
     updateUserProfile,
@@ -240,4 +276,6 @@ module.exports = {
     createAdmin,
     updateAdmin,
     deleteAdmin,
+    getUserLoginActivity,
+    removeLoginSession
 };

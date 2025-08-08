@@ -25,6 +25,7 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [activeActivityTab, setActiveActivityTab] = useState('visited');
     const [recentlyVisited, setRecentlyVisited] = useState([]);
+    const [loginActivity, setLoginActivity] = useState([]);
     const [activityLoading, setActivityLoading] = useState(false);
 
     // Form states
@@ -86,29 +87,38 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const fetchActivityData = async () => {
-            if (activeTab === 'activity' && activeActivityTab === 'visited') {
+            if (activeTab === 'activity') {
                 setActivityLoading(true);
-                const visitedIds = JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
-                if (visitedIds.length > 0) {
+                
+                if (activeActivityTab === 'visited') {
+                    const visitedIds = JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
+                    if (visitedIds.length > 0) {
+                        try {
+                            const { data: allProducts } = await axios.get('/api/products');
+                            const visitedProducts = allProducts.filter(p => visitedIds.includes(p._id));
+                            const orderedVisitedProducts = visitedIds
+                                .map(id => visitedProducts.find(p => p._id === id))
+                                .filter(p => p);
+                            setRecentlyVisited(orderedVisitedProducts);
+                        } catch (error) {
+                            toast.error("Could not fetch recently visited products.");
+                        }
+                    }
+                } else if (activeActivityTab === 'devices') {
                     try {
-                        // This assumes you have an endpoint that can fetch multiple products by IDs
-                        // If not, you'd fetch all and filter, or fetch one by one.
-                        const { data: allProducts } = await axios.get('/api/products');
-                        const visitedProducts = allProducts.filter(p => visitedIds.includes(p._id));
-                        // Preserve the order from recentlyVisited
-                        const orderedVisitedProducts = visitedIds
-                            .map(id => visitedProducts.find(p => p._id === id))
-                            .filter(p => p); // Filter out any products that might not have been found
-                        setRecentlyVisited(orderedVisitedProducts);
+                        const config = { headers: { Authorization: `Bearer ${token}` } };
+                        const { data } = await axios.get('/api/users/profile/login-activity', config);
+                        setLoginActivity(data);
                     } catch (error) {
-                        toast.error("Could not fetch recently visited products.");
+                        toast.error("Could not fetch login activity.");
                     }
                 }
+                
                 setActivityLoading(false);
             }
         };
         fetchActivityData();
-    }, [activeTab, activeActivityTab]);
+    }, [activeTab, activeActivityTab, token]);
 
     const handleSaveAddress = async (addressData) => {
         setIsSavingAddress(true);
@@ -229,6 +239,19 @@ const ProfilePage = () => {
         }
     };
 
+    const handleRemoveDevice = async (sessionId) => {
+        if (window.confirm('Are you sure you want to log out this device?')) {
+            try {
+                const config = { headers: { Authorization: `Bearer ${token}` } };
+                await axios.delete(`/api/users/profile/login-activity/${sessionId}`, config);
+                setLoginActivity(loginActivity.filter(session => session._id !== sessionId));
+                toast.success('Device logged out successfully');
+            } catch (error) {
+                toast.error('Could not log out device.');
+            }
+        }
+    };
+
     const renderActivityContent = () => {
         switch (activeActivityTab) {
             case 'visited':
@@ -252,7 +275,32 @@ const ProfilePage = () => {
                 return (
                     <div>
                         <h3>Logged-in Devices</h3>
-                        <p>This feature is coming soon. You will be able to see and manage all devices logged into your account here.</p>
+                        {activityLoading ? (
+                            <p>Loading device information...</p>
+                        ) : loginActivity.length > 0 ? (
+                            <div className="login-activity-list">
+                                {loginActivity.map(session => (
+                                    <div key={session._id} className="login-activity-item">
+                                        <div className="device-info">
+                                            <h4>{session.deviceName}</h4>
+                                            <p><strong>Browser:</strong> {session.browser}</p>
+                                            <p><strong>OS:</strong> {session.os}</p>
+                                            <p><strong>Location:</strong> {session.location}</p>
+                                            <p><strong>Last Active:</strong> {new Date(session.lastActive).toLocaleString()}</p>
+                                            <p><strong>First Login:</strong> {new Date(session.createdAt).toLocaleString()}</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => handleRemoveDevice(session._id)} 
+                                            className="auth-button secondary"
+                                        >
+                                            Log Out Device
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p>No active login sessions found.</p>
+                        )}
                     </div>
                 );
             default:

@@ -14,6 +14,35 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // Function to get device information
+  const getDeviceInfo = () => {
+    const userAgent = navigator.userAgent;
+    const browserInfo = (() => {
+      if (userAgent.indexOf("Chrome") > -1) return "Chrome";
+      else if (userAgent.indexOf("Safari") > -1) return "Safari";
+      else if (userAgent.indexOf("Firefox") > -1) return "Firefox";
+      else if (userAgent.indexOf("MSIE") > -1 || userAgent.indexOf("Trident") > -1) return "Internet Explorer";
+      else if (userAgent.indexOf("Edge") > -1) return "Edge";
+      else return "Unknown Browser";
+    })();
+    
+    const osInfo = (() => {
+      if (userAgent.indexOf("Win") > -1) return "Windows";
+      else if (userAgent.indexOf("Mac") > -1) return "MacOS";
+      else if (userAgent.indexOf("Linux") > -1) return "Linux";
+      else if (userAgent.indexOf("Android") > -1) return "Android";
+      else if (userAgent.indexOf("iOS") > -1 || userAgent.indexOf("iPhone") > -1 || userAgent.indexOf("iPad") > -1) return "iOS";
+      else return "Unknown OS";
+    })();
+    
+    return {
+      deviceName: navigator.platform || "Unknown Device",
+      browser: browserInfo,
+      os: osInfo,
+      location: Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown Location"
+    };
+  };
+
   const handlePostLogin = async (userData) => {
     login(userData);
     toast.success('Login successful!');
@@ -35,7 +64,12 @@ const LoginPage = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('/api/auth/login', { email: email.toLowerCase(), password });
+      const deviceInfo = getDeviceInfo();
+      const { data } = await axios.post('/api/auth/login', { 
+        email: email.toLowerCase(), 
+        password,
+        deviceInfo
+      });
       handlePostLogin(data);
     } catch (error) {
       toast.error(error.response?.data?.message || 'An error occurred');
@@ -44,7 +78,11 @@ const LoginPage = () => {
 
   const googleSuccess = async (res) => {
     try {
-      const { data } = await axios.post('/api/auth/google', { token: res.credential });
+      const deviceInfo = getDeviceInfo();
+      const { data } = await axios.post('/api/auth/google', { 
+        token: res.credential,
+        deviceInfo
+      });
       handlePostLogin(data);
     } catch (error) {
       toast.error('Google Sign-In was unsuccessful. Try again later.');
