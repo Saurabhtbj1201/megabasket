@@ -105,13 +105,12 @@ const SearchPage = () => {
 
     const renderContent = () => {
         if (loading) {
-            return (
-                <div className="page-status-container">
-                    <div className="loader"></div>
-                    <p className="loading-text">Finding products...</p>
-                </div>
-            );
-        }
+        return (
+            <div className="preloader">
+                <p>Loading Cart...</p>
+            </div>
+        );
+    }
 
         if (error) {
             return (

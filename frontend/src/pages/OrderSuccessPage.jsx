@@ -45,9 +45,8 @@ const OrderSuccessPage = () => {
 
     if (loading) {
         return (
-            <div className="page-status-container">
-                <div className="loader"></div>
-                <p className="loading-text">Loading your order confirmation...</p>
+            <div className="preloader">
+                <p>Loading Cart...</p>
             </div>
         );
     }

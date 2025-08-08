@@ -89,9 +89,8 @@ const AllCategoriesPage = () => {
 
   if (loading) {
     return (
-      <div className="page-status-container">
-        <div className="loader"></div>
-        <p className="loading-text">Loading Categories...</p>
+      <div className="preloader">
+        <p>Loading Categories...</p>
       </div>
     );
   }

@@ -93,13 +93,9 @@ const CartPage = () => {
 
     if (loading) {
         return (
-            <>
-                <Meta title="Shopping Cart | MegaBasket" />
-                <div className="page-status-container">
-                    <div className="loader"></div>
-                    <p className="loading-text">Loading Cart...</p>
-                </div>
-            </>
+            <div className="preloader">
+                <p>Loading Cart...</p>
+            </div>
         );
     }
 

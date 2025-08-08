@@ -106,15 +106,6 @@ const HomePage = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    if (loading) {
-        return (
-            <div className="page-status-container">
-                <div className="loader"></div>
-                <p className="loading-text">Loading Home Page...</p>
-            </div>
-        );
-    }
-
     if (error) {
         return (
             <div className="container">
