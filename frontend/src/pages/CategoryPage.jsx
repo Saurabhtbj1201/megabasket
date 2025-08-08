@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ProductCard from '../components/ProductCard';
@@ -11,6 +11,8 @@ import './CategoryPage.css';
 
 const CategoryPage = () => {
     const { categoryId } = useParams();
+    const [searchParams] = useSearchParams();
+    const subcategoryParam = searchParams.get('subcategory');
     const [products, setProducts] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
     const [subCategories, setSubCategories] = useState([]);
@@ -38,7 +40,7 @@ const CategoryPage = () => {
                 setSubCategories(subCategoriesRes.data);
                 const currentCat = categoriesRes.data.find(c => c._id === categoryId);
                 setCategoryName(currentCat?.name || 'Category');
-                setSelectedSubCategoryId(null); // Reset on category change
+                setSelectedSubCategoryId(subcategoryParam); // Set from URL param
             } catch (error) {
                 toast.error('Could not fetch page data.');
             } finally {
@@ -46,7 +48,7 @@ const CategoryPage = () => {
             }
         };
         fetchInitialData();
-    }, [categoryId]);
+    }, [categoryId, subcategoryParam]);
 
     useEffect(() => {
         const handleScroll = () => {

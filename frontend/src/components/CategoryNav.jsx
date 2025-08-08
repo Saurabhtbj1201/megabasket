@@ -27,6 +27,12 @@ const CategoryNav = () => {
             <p>{category.name}</p>
           </Link>
         ))}
+        <Link to="/all-categories" className="category-item view-all-item">
+          <div className="view-all-circle">
+            <span>+</span>
+          </div>
+          <p>View All</p>
+        </Link>
       </div>
     </div>
   );
