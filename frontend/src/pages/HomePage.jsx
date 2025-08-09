@@ -9,6 +9,7 @@ import Meta from '../components/Meta';
 import { FaArrowUp } from 'react-icons/fa';
 import './HomePage.css';
 import './AllCategoriesPage.css'; // For shared status styles
+import { fetchWithCache } from '../utils/cacheUtils';
 
 const HomePage = () => {
     const { userInfo } = useAuth();
@@ -18,43 +19,72 @@ const HomePage = () => {
     const [recentlyVisited, setRecentlyVisited] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    // Add state to track recently visited ids from localStorage
+    const [visitedIds, setVisitedIds] = useState(() => {
+        return JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
+    });
 
     // Add this useEffect to reset scroll position when component mounts
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
+    // Add effect to listen for storage events
+    useEffect(() => {
+        // Function to update visitedIds when localStorage changes
+        const handleStorageChange = () => {
+            const updatedIds = JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
+            setVisitedIds(updatedIds);
+        };
+
+        // Set up event listener for changes to localStorage
+        window.addEventListener('storage', handleStorageChange);
+
+        // Check for changes every 5 seconds as a fallback (for same-tab navigation)
+        const intervalId = setInterval(() => {
+            const currentIds = JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
+            if (JSON.stringify(currentIds) !== JSON.stringify(visitedIds)) {
+                setVisitedIds(currentIds);
+            }
+        }, 5000);
+
+        // Clean up
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            clearInterval(intervalId);
+        };
+    }, [visitedIds]);
+
     useEffect(() => {
         const fetchHomePageData = async () => {
             setLoading(true);
             setError(null);
             try {
-                // Fetch Top Offers
-                const { data: offersData } = await axios.get('/api/products/top-offers');
+                // Fetch Top Offers with caching (2 hours expiry)
+                const offersData = await fetchWithCache('/api/products/top-offers', 'topOffers', 7200000);
                 setTopOffers(offersData);
 
-                // Try to fetch dynamic offers, but don't fail if endpoint doesn't exist yet
+                // Try to fetch dynamic offers with caching (1 hour expiry)
                 try {
-                    const { data: dynamicOffersData } = await axios.get('/api/offers');
+                    const dynamicOffersData = await fetchWithCache('/api/offers', 'dynamicOffers', 3600000);
                     setDynamicOffers(dynamicOffersData);
                 } catch (offerError) {
                     console.log("Offers endpoint not available yet:", offerError);
-                    // Set empty array for offers - this is expected if the endpoint isn't set up yet
                     setDynamicOffers([]);
                 }
 
-                // Fetch Categories and then products for each
-                const { data: categoriesData } = await axios.get('/api/categories');
+                // Fetch Categories with caching (24 hours expiry since they rarely change)
+                const categoriesData = await fetchWithCache('/api/categories', 'categories', 86400000);
                 
-                // Fix: categoriesData is already the array, not categoriesData.data
+                // Fetch products for each category with caching (4 hours expiry)
                 const categoryProductPromises = categoriesData.map(cat =>
-                    axios.get(`/api/products/category/${cat._id}`)
+                    fetchWithCache(`/api/products/category/${cat._id}`, `category_${cat._id}`, 14400000)
                 );
-                const categoryProductResponses = await Promise.all(categoryProductPromises);
+                const categoryProducts = await Promise.all(categoryProductPromises);
                 
                 const productsByCat = categoriesData.map((cat, index) => ({
                     ...cat,
-                    products: categoryProductResponses[index].data,
+                    products: categoryProducts[index],
                 }));
                 setProductsByCategory(productsByCat);
 
@@ -88,19 +118,25 @@ const HomePage = () => {
     useEffect(() => {
         const fetchRecentlyVisited = async () => {
             if (userInfo) {
-                const visitedIds = JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
+                // Using visitedIds state instead of reading from localStorage
                 if (visitedIds.length > 0) {
-                    // In a real app, you might fetch these from a dedicated endpoint
-                    // For now, we'll filter from all products if available, or fetch individually
-                    // This is a simplified example.
-                    const { data: allProducts } = await axios.get('/api/products');
-                    const visitedProducts = allProducts.filter(p => visitedIds.includes(p._id));
-                    setRecentlyVisited(visitedProducts.slice(0, 4));
+                    try {
+                        // Use cached product data if available
+                        const allProducts = await fetchWithCache('/api/products', 'allProducts', 3600000);
+                        const visitedProducts = allProducts.filter(p => visitedIds.includes(p._id));
+                        // Preserve the order from localStorage
+                        const orderedVisitedProducts = visitedIds
+                            .map(id => visitedProducts.find(p => p._id === id))
+                            .filter(Boolean);
+                        setRecentlyVisited(orderedVisitedProducts.slice(0, 4));
+                    } catch (error) {
+                        console.error("Failed to fetch recently visited products", error);
+                    }
                 }
             }
         };
         fetchRecentlyVisited();
-    }, [userInfo]);
+    }, [userInfo, visitedIds]); // Add visitedIds as dependency
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -129,6 +165,16 @@ const HomePage = () => {
                 <BannerSlider />
                 <CategoryNav />
                 <div className="container">
+
+                    {userInfo && recentlyVisited.length > 0 && (
+                        <div className="recommendations-container">
+                            <ProductGrid title="Recently Visited" products={recentlyVisited} viewAllLink="/profile?tab=activity" />
+                            <ProductGrid title="Similar Products" products={topOffers.slice(0, 4)} />
+                            <ProductGrid title="Recommended For You" products={topOffers.slice(4, 8)} />
+                        </div>
+                    )}
+
+                    
                     {/* Deals of the Day Carousel - Only show if exists */}
                     {dealsOfTheDay && dealsOfTheDay.products && dealsOfTheDay.products.length > 0 && (
                         <ProductCarousel 
@@ -150,13 +196,7 @@ const HomePage = () => {
                         )
                     ))}
 
-                    {userInfo && recentlyVisited.length > 0 && (
-                        <div className="recommendations-container">
-                            <ProductGrid title="Recently Visited" products={recentlyVisited} viewAllLink="/profile?tab=activity" />
-                            <ProductGrid title="Similar Products" products={topOffers.slice(0, 4)} />
-                            <ProductGrid title="Recommended For You" products={topOffers.slice(4, 8)} />
-                        </div>
-                    )}
+                    
 
                     <ProductCarousel title="Top Offers" products={topOffers} viewAllLink="/products/offers" />
 

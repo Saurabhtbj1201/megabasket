@@ -20,6 +20,11 @@ const ProductDetailPage = () => {
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
 
+    // Add useEffect to scroll to top when component mounts or product id changes
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [id]); // Depend on id so it scrolls to top when navigating between products
+
     useEffect(() => {
         const fetchProduct = async () => {
             setLoading(true);
