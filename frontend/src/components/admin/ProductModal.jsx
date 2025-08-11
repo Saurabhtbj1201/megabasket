@@ -6,7 +6,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import '../AddressModal.css'; // Reusing styles
 import './ProductModal.css';
 
-const ProductModal = ({ isOpen, onClose, onSave, product, isSaving }) => {
+const ProductModal = ({ isOpen, onClose, onSave, product, isSaving, showCloseButton = true }) => {
     const [formData, setFormData] = useState({
         name: '', description: '', category: '', price: 0, discount: 0, stock: 0,
         tags: '', shippingInfo: '', status: 'Published', brand: '', color: ''
@@ -209,6 +209,13 @@ const ProductModal = ({ isOpen, onClose, onSave, product, isSaving }) => {
     return (
         <div className="modal-overlay">
             <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+                {/* Close button - now conditional */}
+                {showCloseButton && (
+                    <button className="modal-close-btn" onClick={onClose}>
+                        <FiX />
+                    </button>
+                )}
+                
                 <h2>{product ? 'Edit Product' : 'Add New Product'}</h2>
                 <form onSubmit={handleSubmit}>
                     {/* Form fields */}
@@ -292,11 +299,14 @@ const ProductModal = ({ isOpen, onClose, onSave, product, isSaving }) => {
                     <div className="form-group"><label>Status</label><select name="status" value={formData.status} onChange={handleChange}><option value="Published">Published</option><option value="Draft">Draft</option><option value="Hidden">Hidden</option></select></div>
 
                     <div className="modal-actions">
-                        <button type="submit" className="auth-button">Save Product</button>
+                        <button type="submit" className="auth-button" disabled={isSaving}>
+                            {isSaving ? 'Saving...' : 'Save Product'}
+                        </button>
                         <button type="button" onClick={onClose} className="auth-button secondary">Cancel</button>
                     </div>
                 </form>
             </div>
+            
             {upImg && (
                 <div className="modal-overlay">
                     <div className="modal-content">

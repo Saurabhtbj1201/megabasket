@@ -106,6 +106,9 @@ const AdminOffersPage = () => {
     const [currentSelectionTarget, setCurrentSelectionTarget] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [offerToDelete, setOfferToDelete] = useState(null);
+    // Add saving states
+    const [savingDeals, setSavingDeals] = useState(false);
+    const [savingOffers, setSavingOffers] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -213,8 +216,10 @@ const AdminOffersPage = () => {
 
     const handleSaveDeals = async () => {
         try {
+            setSavingDeals(true);
             const adminInfo = JSON.parse(localStorage.getItem('adminInfo'));
             if (!adminInfo || !adminInfo.token) {
+                setSavingDeals(false);
                 return toast.error('Admin authentication required');
             }
             
@@ -228,6 +233,8 @@ const AdminOffersPage = () => {
         } catch (error) {
             console.error("Save deals error:", error);
             toast.error("Failed to save deals. Make sure your backend supports the /api/offers endpoint.");
+        } finally {
+            setSavingDeals(false);
         }
     };
 
@@ -237,8 +244,12 @@ const AdminOffersPage = () => {
             return toast.error("Offer title and products are required.");
         }
         try {
+            // Set saving state for this specific offer
+            setSavingOffers(prev => ({ ...prev, [offerIndex]: true }));
+            
             const adminInfo = JSON.parse(localStorage.getItem('adminInfo'));
             if (!adminInfo || !adminInfo.token) {
+                setSavingOffers(prev => ({ ...prev, [offerIndex]: false }));
                 return toast.error('Admin authentication required');
             }
             
@@ -286,6 +297,8 @@ const AdminOffersPage = () => {
                 // Something happened in setting up the request
                 toast.error(`Request setup error: ${error.message}`);
             }
+        } finally {
+            setSavingOffers(prev => ({ ...prev, [offerIndex]: false }));
         }
     };
 
@@ -308,6 +321,7 @@ const AdminOffersPage = () => {
             // Check if product already exists in deals
             if (!deals.find(p => p._id === productId)) {
                 setDeals([...deals, product]);
+                toast.success(`${product.name} added to Deals of the Day`);
             } else {
                 toast.info('This product is already in Deals of the Day');
             }
@@ -317,6 +331,7 @@ const AdminOffersPage = () => {
             if (!updatedOffers[currentSelectionTarget].products.find(p => p._id === productId)) {
                 updatedOffers[currentSelectionTarget].products.push(product);
                 setCustomOffers(updatedOffers);
+                toast.success(`${product.name} added to ${updatedOffers[currentSelectionTarget].title || 'Custom Offer'}`);
             } else {
                 toast.info('This product is already in this offer');
             }
@@ -409,7 +424,9 @@ const AdminOffersPage = () => {
                     <FiPlus /> Add Products
                 </button>
                 {renderSelectedProducts(deals, (index) => setDeals(deals.filter((_, i) => i !== index)))}
-                <button onClick={handleSaveDeals} className="save-btn">Save Deals of the Day</button>
+                <button onClick={handleSaveDeals} className="save-btn" disabled={savingDeals}>
+                    {savingDeals ? "Saving..." : "Save Deals of the Day"}
+                </button>
             </div>
 
             <div className="offer-section">
@@ -447,7 +464,13 @@ const AdminOffersPage = () => {
                             updatedOffers[index].products.splice(prodIndex, 1);
                             setCustomOffers(updatedOffers);
                         })}
-                        <button onClick={() => handleSaveCustomOffer(index)} className="save-btn">Save Offer</button>
+                        <button 
+                            onClick={() => handleSaveCustomOffer(index)} 
+                            className="save-btn"
+                            disabled={savingOffers[index]}
+                        >
+                            {savingOffers[index] ? "Saving..." : "Save Offer"}
+                        </button>
                     </div>
                 ))}
                 <button onClick={handleAddOffer} className="add-more-btn">+ Add Another Offer Section</button>

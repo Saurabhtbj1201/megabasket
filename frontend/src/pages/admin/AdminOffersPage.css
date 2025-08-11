@@ -99,6 +99,12 @@
     color: white;
 }
 
+.save-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
 .add-more-btn {
     background-color: var(--primary-color);
     color: white;
@@ -274,12 +280,13 @@
 
 .product-modal-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 2fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1rem;
     padding: 1rem;
     overflow-y: auto;
     max-height: 60vh;
 }
+
 
 .product-modal-item {
     border: 1px solid #eee;
@@ -287,18 +294,26 @@
     overflow: hidden;
     position: relative;
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    height: auto;
+    min-height: 80px;
 }
 
 .product-modal-item img {
-    width: 5rem;
-    height: 5rem;
+    width: 80px;
+    height: 80px;
     object-fit: cover;
-    border-bottom: 1px solid #eee;
+    border-right: 1px solid #eee;
+    flex-shrink: 0;
 }
 
 .product-modal-details {
     padding: 0.75rem;
     flex-grow: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
 }
 
 .product-modal-details h4 {
@@ -307,7 +322,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 12rem;
+    max-width: 100%; /* Allow ellipsis to work properly */
 }
 
 .product-modal-price {
@@ -333,6 +348,9 @@
     border-radius: 0;
     cursor: pointer;
     font-weight: 500;
+    flex-shrink: 0;
+    height: 100%;
+    min-width: 60px;
 }
 
 .no-products-found {
@@ -435,7 +453,7 @@
     }
     
     .product-modal-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
     
     .offer-products-grid {

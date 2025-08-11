@@ -145,7 +145,14 @@ const AdminProductPage = () => {
                         </div>
                     ))}
                 </div>
-                <ProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSaveProduct} product={editingProduct} isSaving={isSaving} />
+                <ProductModal 
+                    isOpen={isModalOpen} 
+                    onClose={() => setIsModalOpen(false)} 
+                    onSave={handleSaveProduct} 
+                    product={editingProduct} 
+                    isSaving={isSaving} 
+                    showCloseButton={true}  // Add this prop to enable close button
+                />
                 <ConfirmationModal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)} onConfirm={confirmDeleteProduct} title="Delete Product" message="Are you sure you want to delete this product?" />
             </div>
         </>
