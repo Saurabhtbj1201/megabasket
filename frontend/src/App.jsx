@@ -49,6 +49,7 @@ import AdminUserPage from './pages/admin/AdminUserPage';
 import AdminBannerPage from './pages/admin/AdminBannerPage';
 import AdminProfilePage from './pages/admin/AdminProfilePage';
 import AdminSubCategoryPage from './pages/admin/AdminSubCategoryPage';
+import AdminPromotionalMailPage from './pages/admin/AdminPromotionalMailPage';
 
 function App() {
   return (
@@ -95,6 +96,7 @@ function App() {
             <Route path="/admin/banners" element={<AdminBannerPage />} />
             <Route path="/admin/profile" element={<AdminProfilePage />} />
             <Route path="/admin/contact" element={<AdminContactPage />} />
+            <Route path="/admin/promotional-mail" element={<AdminPromotionalMailPage />} />
           </Route>
         </Route>
       </Routes>

@@ -1,0 +1,616 @@
+.promotional-mail-page {
+    padding: 2rem;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+.subtitle {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.promotional-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.promotional-tabs button {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.promotional-tabs button.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.promotional-content {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    min-height: 500px;
+}
+
+/* Templates Tab */
+.templates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.add-template-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.template-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.template-item.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.template-info {
+    flex-grow: 1;
+}
+
+.template-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.template-info p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.sample-badge {
+    display: inline-block;
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.template-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.template-actions button {
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 4px;
+}
+
+.template-actions button:hover {
+    background-color: #f1f3f5;
+    color: #212529;
+}
+
+/* Email Composer */
+.composer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.save-template-btn, 
+.save-as-template-btn, 
+.edit-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.cancel-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.template-name-input, .email-subject-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.rich-text-editor {
+    margin-bottom: 1.5rem;
+}
+
+.rich-text-editor .quill {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+.template-hint {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 1.5rem;
+}
+
+.template-hint h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.template-hint p {
+    margin: 0.25rem 0;
+    color: #6c757d;
+}
+
+.template-hint code {
+    background-color: #e9ecef;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.selected-template-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-top: 1.5rem;
+}
+
+.selected-template-info .template-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+/* Recipients Tab */
+.recipients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.recipient-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.recipient-stats p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.select-all-btn {
+    background: none;
+    border: 1px solid #ced4da;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #495057;
+}
+
+.select-all-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.user-item {
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.user-item:nth-child(odd) {
+    background-color: #f8f9fa;
+}
+
+.user-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    width: 100%;
+}
+
+.user-checkbox input {
+    width: 18px;
+    height: 18px;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #343a40;
+}
+
+.user-email {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.send-email-section {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.send-email-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.send-email-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* New styles for the enhanced template workflow */
+.template-use-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.use-template-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.next-step-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 2rem;
+}
+
+.next-step-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.composer-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    gap: 0.75rem;
+}
+
+.composer-actions .save-template-btn {
+    margin-right: auto; /* This pushes other buttons to the right */
+}
+
+.email-preview {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.email-preview-header {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+}
+
+.email-preview-body {
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.back-to-compose-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 1rem;
+}
+
+/* Style for Save as Template button */
+.save-as-template-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Make sure required fields are visually marked */
+.email-subject-input:invalid,
+.template-name-input:invalid {
+    border-color: var(--danger-color);
+}
+
+/* Sent Mail Tab Styles */
+.sent-mail-container {
+    width: 100%;
+}
+
+.sent-mail-header {
+    margin-bottom: 1.5rem;
+}
+
+.sent-mails-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.sent-mails-table th,
+.sent-mails-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.sent-mails-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.sent-mails-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.mail-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status-delivered {
+    background-color: rgba(25, 135, 84, 0.15);
+    color: #157347;
+}
+
+.status-failed {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #bb2d3b;
+}
+
+.status-pending {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #d39e00;
+}
+
+.status-demo {
+    background-color: rgba(13, 110, 253, 0.15);
+    color: #0b5ed7;
+}
+
+.no-sent-mails {
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    color: #6c757d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.no-sent-mails p {
+    margin: 0;
+    font-size: 1.1rem;
+    max-width: 400px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .promotional-mail-page {
+        padding: 1rem;
+    }
+    
+    .promotional-content {
+        padding: 1rem;
+    }
+    
+    .promotional-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .promotional-tabs button {
+        flex-grow: 1;
+        padding: 0.6rem 0.8rem;
+    }
+    
+    .templates-header, .composer-header, .recipients-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .template-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .template-info {
+        margin-bottom: 0.75rem;
+    }
+    
+    .selected-template-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .selected-template-info .template-actions {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+    
+    .send-email-section {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .back-to-compose-btn {
+        margin-right: 0;
+    }
+    
+    .sent-mails-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .sent-mails-table th,
+    .sent-mails-table td {
+        padding: 0.75rem;
+    }
+}
