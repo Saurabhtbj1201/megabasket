@@ -8,7 +8,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 const AdminPromotionalMailPage = () => {
-    const [activeTab, setActiveTab] = useState('write');
+    const [activeTab, setActiveTab] = useState('templates'); // Changed from 'write' to 'templates'
     const [templates, setTemplates] = useState([]);
     const [users, setUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
