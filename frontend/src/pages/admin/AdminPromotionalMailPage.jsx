@@ -4,8 +4,6 @@ import { toast } from 'react-toastify';
 import { FiEdit, FiTrash2, FiCheck, FiX, FiMail, FiArrowRight, FiSave } from 'react-icons/fi';
 import Meta from '../../components/Meta';
 import './AdminPromotionalMailPage.css';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 
 const AdminPromotionalMailPage = () => {
     const [activeTab, setActiveTab] = useState('templates'); // Changed from 'write' to 'templates'
@@ -14,25 +12,28 @@ const AdminPromotionalMailPage = () => {
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [sendingEmail, setSendingEmail] = useState(false);
-    
+
     // Template state
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
     const [templateName, setTemplateName] = useState('');
-    
+
     // Email state
     const [emailSubject, setEmailSubject] = useState('');
     const [emailBody, setEmailBody] = useState('');
-    
+
     // Add new state for workflow control
-    const [workflowStep, setWorkflowStep] = useState('template'); 
+    const [workflowStep, setWorkflowStep] = useState('template');
     // Add state to control saving a direct email as template
     const [savingAsTemplate, setSavingAsTemplate] = useState(false);
-    
+
     // Add new state for sent mail history
     const [sentMails, setSentMails] = useState([]);
     const [sentMailsLoading, setSentMailsLoading] = useState(false);
-    
+
+    // Add new state for editor mode
+    const [editorMode, setEditorMode] = useState('code'); // 'code' or 'preview'
+
     // Fetch initial data - remove sample templates
     useEffect(() => {
         const fetchData = async () => {
@@ -40,13 +41,13 @@ const AdminPromotionalMailPage = () => {
             try {
                 const token = JSON.parse(localStorage.getItem('adminInfo'))?.token;
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                
+
                 // Fetch templates and users in parallel
                 const [templatesResponse, usersResponse] = await Promise.all([
                     axios.get('/api/email/templates', config),
                     axios.get('/api/email/users', config)
                 ]);
-                
+
                 // Only use templates from database
                 setTemplates(templatesResponse.data || []);
                 setUsers(usersResponse.data || []);
@@ -57,7 +58,7 @@ const AdminPromotionalMailPage = () => {
                 setLoading(false);
             }
         };
-        
+
         fetchData();
     }, []);
 
@@ -102,43 +103,43 @@ const AdminPromotionalMailPage = () => {
         if (!templateName || !emailSubject || !emailBody) {
             return toast.error('Template name, subject, and body are required.');
         }
-        
+
         try {
             const token = JSON.parse(localStorage.getItem('adminInfo'))?.token;
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            
+
             const templateData = {
                 name: templateName,
                 subject: emailSubject,
                 body: emailBody
             };
-            
+
             let response;
             if (selectedTemplate && !selectedTemplate.isSample) {
                 // Update existing template
                 response = await axios.put(`/api/email/templates/${selectedTemplate._id}`, templateData, config);
-                
+
                 // Update templates array
-                setTemplates(templates.map(t => 
+                setTemplates(templates.map(t =>
                     t._id === selectedTemplate._id ? response.data : t
                 ));
-                
+
                 toast.success('Template updated successfully!');
             } else {
                 // Create new template
                 response = await axios.post('/api/email/templates', templateData, config);
-                
+
                 // Add to templates array
                 setTemplates([response.data, ...templates]);
-                
+
                 toast.success('New template created!');
             }
-            
+
             // Set the new/updated template as selected
             setSelectedTemplate(response.data);
             setIsEditingTemplate(false);
             setSavingAsTemplate(false);
-            
+
         } catch (error) {
             console.error('Error saving template:', error);
             toast.error('Failed to save template: ' + (error.response?.data?.message || error.message));
@@ -150,22 +151,22 @@ const AdminPromotionalMailPage = () => {
         if (!window.confirm('Are you sure you want to delete this template?')) {
             return;
         }
-        
+
         try {
             const token = JSON.parse(localStorage.getItem('adminInfo'))?.token;
             const config = { headers: { Authorization: `Bearer ${token}` } };
             await axios.delete(`/api/email/templates/${templateId}`, config);
-            
+
             // Update templates state
             setTemplates(templates.filter(t => t._id !== templateId));
-            
+
             if (selectedTemplate && selectedTemplate._id === templateId) {
                 setSelectedTemplate(null);
                 setEmailSubject('');
                 setEmailBody('');
                 setTemplateName('');
             }
-            
+
             toast.success('Template deleted successfully!');
         } catch (error) {
             console.error('Error deleting template:', error);
@@ -197,7 +198,7 @@ const AdminPromotionalMailPage = () => {
             toast.error('Please enter both subject and body before proceeding.');
             return;
         }
-        
+
         setActiveTab('recipients');
         setWorkflowStep('recipients');
     };
@@ -207,17 +208,17 @@ const AdminPromotionalMailPage = () => {
         if (!emailSubject || !emailBody) {
             return toast.error('Subject and body are required.');
         }
-        
+
         if (selectedUsers.length === 0) {
             return toast.error('Please select at least one recipient.');
         }
-        
+
         setSendingEmail(true);
-        
+
         try {
             const token = JSON.parse(localStorage.getItem('adminInfo'))?.token;
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            
+
             const emailData = {
                 subject: emailSubject,
                 body: emailBody,
@@ -225,21 +226,21 @@ const AdminPromotionalMailPage = () => {
                 // Include template name if a template is selected
                 templateName: selectedTemplate ? selectedTemplate.name : 'Custom Email'
             };
-            
+
             console.log('Sending email with data:', emailData);
-            
+
             const response = await axios.post('/api/email/send', emailData, config);
             console.log('Email sent response:', response.data);
-            
+
             if (response.data.success) {
                 // Display successful email message with more details
                 toast.success(`Email sent successfully to ${selectedUsers.length} recipients!`);
-                
+
                 // If we have messageIds, show a more detailed success message
                 if (response.data.messageIds && response.data.messageIds.length > 0) {
                     toast.info('Email delivery has been initiated. Emails should arrive shortly.');
                 }
-                
+
                 // After successful sending, reset workflow
                 setActiveTab('templates');
                 setWorkflowStep('template');
@@ -247,7 +248,7 @@ const AdminPromotionalMailPage = () => {
                 setEmailSubject('');
                 setEmailBody('');
                 setSelectedUsers([]);
-                
+
                 // If the user is on the sent mails tab, refresh the history
                 if (activeTab === 'sent') {
                     fetchSentMails();
@@ -256,7 +257,7 @@ const AdminPromotionalMailPage = () => {
                 // Add more helpful information for demo mode
                 toast.info(`DEMO MODE: Email would be sent to ${selectedUsers.length} recipients`);
                 toast.info('To send actual emails, configure your email credentials in .env file');
-                
+
                 // Show configuration instructions
                 toast.info('Open the server console for email configuration instructions');
                 console.info(`
@@ -272,7 +273,7 @@ For Gmail:
 2. Generate an "App Password" for your application
 3. Use that App Password in the EMAIL_PASSWORD field
                 `);
-                
+
                 // For demo mode, add the email to the history
                 const newSentMail = {
                     _id: `demo${Date.now()}`,
@@ -288,13 +289,13 @@ For Gmail:
             }
         } catch (error) {
             console.error('Error sending email:', error);
-            
+
             // Show more detailed error message
             if (error.response?.data?.message) {
                 toast.error(`Failed to send email: ${error.response.data.message}`);
-                
+
                 // If there's an SMTP or authentication error, provide guidance
-                if (error.response.data.message.includes('authentication') || 
+                if (error.response.data.message.includes('authentication') ||
                     error.response.data.message.includes('EAUTH')) {
                     toast.info('Check your email service credentials in the .env file');
                 }
@@ -312,7 +313,7 @@ For Gmail:
         try {
             const token = JSON.parse(localStorage.getItem('adminInfo'))?.token;
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            
+
             const response = await axios.get('/api/email/history', config);
             setSentMails(response.data || []);
         } catch (error) {
@@ -324,25 +325,13 @@ For Gmail:
             setSentMailsLoading(false);
         }
     };
-    
+
     // Load sent mails when the tab is selected
     useEffect(() => {
         if (activeTab === 'sent') {
             fetchSentMails();
         }
     }, [activeTab]);
-
-    // Rich text editor modules and formats
-    const modules = {
-        toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['link', 'image'],
-            ['clean']
-        ]
-    };
 
     // Format date for display
     const formatDateTime = (dateString) => {
@@ -369,34 +358,34 @@ For Gmail:
                     <h1>Promotional Emails</h1>
                     <p className="subtitle">Create and send marketing emails to your customers</p>
                 </div>
-                
+
                 <div className="promotional-tabs">
-                    <button 
-                        className={activeTab === 'templates' ? 'active' : ''} 
+                    <button
+                        className={activeTab === 'templates' ? 'active' : ''}
                         onClick={() => setActiveTab('templates')}
                     >
                         Templates
                     </button>
-                    <button 
-                        className={activeTab === 'write' ? 'active' : ''} 
+                    <button
+                        className={activeTab === 'write' ? 'active' : ''}
                         onClick={() => setActiveTab('write')}
                     >
                         Write Email
                     </button>
-                    <button 
-                        className={activeTab === 'recipients' ? 'active' : ''} 
+                    <button
+                        className={activeTab === 'recipients' ? 'active' : ''}
                         onClick={() => setActiveTab('recipients')}
                     >
                         Choose Recipients
                     </button>
-                    <button 
-                        className={activeTab === 'sent' ? 'active' : ''} 
+                    <button
+                        className={activeTab === 'sent' ? 'active' : ''}
                         onClick={() => setActiveTab('sent')}
                     >
                         Sent Mail
                     </button>
                 </div>
-                
+
                 <div className="promotional-content">
                     {activeTab === 'templates' && (
                         <div className="templates-container">
@@ -406,7 +395,7 @@ For Gmail:
                                     + Create New Template
                                 </button>
                             </div>
-                            
+
                             {loading ? (
                                 <p>Loading templates...</p>
                             ) : templates.length === 0 ? (
@@ -414,8 +403,8 @@ For Gmail:
                             ) : (
                                 <div className="templates-list">
                                     {templates.map(template => (
-                                        <div 
-                                            key={template._id} 
+                                        <div
+                                            key={template._id}
                                             className={`template-item ${selectedTemplate && selectedTemplate._id === template._id ? 'selected' : ''}`}
                                             onClick={() => handleTemplateSelect(template)}
                                         >
@@ -435,12 +424,12 @@ For Gmail:
                                     ))}
                                 </div>
                             )}
-                            
+
                             {/* Add Use Template button when a template is selected */}
                             {selectedTemplate && (
                                 <div className="template-use-actions">
-                                    <button 
-                                        className="use-template-btn" 
+                                    <button
+                                        className="use-template-btn"
                                         onClick={handleUseTemplate}
                                     >
                                         Use This Template
@@ -449,7 +438,7 @@ For Gmail:
                             )}
                         </div>
                     )}
-                    
+
                     {activeTab === 'write' && (
                         <div className="email-composer">
                             <div className="composer-header">
@@ -468,8 +457,8 @@ For Gmail:
                                     </div>
                                 ) : !selectedTemplate && (
                                     <div className="template-actions">
-                                        <button 
-                                            className="save-as-template-btn" 
+                                        <button
+                                            className="save-as-template-btn"
                                             onClick={handleToggleSaveAsTemplate}
                                         >
                                             <FiSave /> {savingAsTemplate ? 'Cancel Save' : 'Save as Template'}
@@ -477,52 +466,75 @@ For Gmail:
                                     </div>
                                 )}
                             </div>
-                            
+
                             {(isEditingTemplate || savingAsTemplate) && (
                                 <div className="form-group">
                                     <label>Template Name</label>
-                                    <input 
-                                        type="text" 
-                                        value={templateName} 
+                                    <input
+                                        type="text"
+                                        value={templateName}
                                         onChange={(e) => setTemplateName(e.target.value)}
                                         placeholder="Enter template name"
                                         className="template-name-input"
                                     />
                                 </div>
                             )}
-                            
+
                             <div className="form-group">
                                 <label>Subject</label>
-                                <input 
-                                    type="text" 
-                                    value={emailSubject} 
+                                <input
+                                    type="text"
+                                    value={emailSubject}
                                     onChange={(e) => setEmailSubject(e.target.value)}
                                     placeholder="Enter email subject"
                                     className="email-subject-input"
                                     required
                                 />
                             </div>
-                            
+
                             <div className="form-group">
-                                <label>Body</label>
-                                <div className="rich-text-editor">
-                                    <ReactQuill 
-                                        theme="snow" 
-                                        value={emailBody} 
-                                        onChange={setEmailBody}
-                                        modules={modules}
-                                        placeholder="Compose your email body here..."
-                                        required
-                                    />
+                                <div className="email-editor-header">
+                                    <label>Body</label>
+                                    <div className="editor-mode-toggle">
+                                        <button
+                                            className={`mode-btn ${editorMode === 'code' ? 'active' : ''}`}
+                                            onClick={() => setEditorMode('code')}
+                                        >
+                                            Code
+                                        </button>
+                                        <button
+                                            className={`mode-btn ${editorMode === 'preview' ? 'active' : ''}`}
+                                            onClick={() => setEditorMode('preview')}
+                                        >
+                                            Preview
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="html-editor">
+                                    {editorMode === 'code' ? (
+                                        <textarea
+                                            className="html-code-editor"
+                                            value={emailBody}
+                                            onChange={(e) => setEmailBody(e.target.value)}
+                                            placeholder="Enter your HTML email content here..."
+                                            rows={15}
+                                        />
+                                    ) : (
+                                        <div className="html-preview" dangerouslySetInnerHTML={createMarkup(emailBody)} />
+                                    )}
                                 </div>
                             </div>
-                            
+
                             <div className="template-hint">
-                                <h4>Personalization Tags:</h4>
-                                <p>Use <code>{'{'}{'{'}'name'{'}'}{'}}'}</code> to insert recipient's name</p>
-                                <p>Use <code>{'{'}{'{'}'email'{'}'}{'}}'}</code> to insert recipient's email</p>
+                                <h4>Personalization Tags & HTML Tips:</h4>
+                                <p>Use <code>{'{'}{'{'}name{'}'}{'}'}</code> to insert recipient's name</p>
+                                <p>Use <code>{'{'}{'{'}email{'}'}{'}'}</code> to insert recipient's email</p>
+                                <p>Use <code>${'{'}process.env.FRONTEND_URL{'}'}</code> to insert your site URL for images and links</p>
+                                <p>Use <code>${'{'}new Date().getFullYear(){'}'}</code> to insert current year (for copyright)</p>
+                                
                             </div>
-                            
+
                             {!isEditingTemplate && selectedTemplate && (
                                 <div className="selected-template-info">
                                     <p>Using template: <strong>{selectedTemplate.name}</strong></p>
@@ -533,22 +545,22 @@ For Gmail:
                                     </div>
                                 </div>
                             )}
-                            
+
                             {/* Add new action buttons for the compose step */}
                             <div className="composer-actions">
                                 {savingAsTemplate && (
-                                    <button 
-                                        className="save-template-btn" 
+                                    <button
+                                        className="save-template-btn"
                                         onClick={handleSaveTemplate}
                                         disabled={!templateName || !emailSubject || !emailBody}
                                     >
                                         <FiSave /> Save Template
                                     </button>
                                 )}
-                                
+
                                 {!isEditingTemplate && (
-                                    <button 
-                                        className="next-step-btn" 
+                                    <button
+                                        className="next-step-btn"
                                         onClick={handleProceedToRecipients}
                                         disabled={!emailSubject || !emailBody}
                                     >
@@ -558,7 +570,7 @@ For Gmail:
                             </div>
                         </div>
                     )}
-                    
+
                     {activeTab === 'recipients' && (
                         <div className="recipients-container">
                             <div className="recipients-header">
@@ -570,7 +582,7 @@ For Gmail:
                                     </button>
                                 </div>
                             </div>
-                            
+
                             {/* Enhanced email preview - show full body */}
                             <div className="email-preview">
                                 <div className="email-preview-header">
@@ -581,7 +593,7 @@ For Gmail:
                                     <div dangerouslySetInnerHTML={createMarkup(emailBody)} />
                                 </div>
                             </div>
-                            
+
                             {loading ? (
                                 <p>Loading users...</p>
                             ) : users.length === 0 ? (
@@ -591,7 +603,7 @@ For Gmail:
                                     {users.map(user => (
                                         <div key={user._id} className="user-item">
                                             <label className="user-checkbox">
-                                                <input 
+                                                <input
                                                     type="checkbox"
                                                     checked={selectedUsers.includes(user._id)}
                                                     onChange={() => handleUserSelect(user._id)}
@@ -605,15 +617,15 @@ For Gmail:
                                     ))}
                                 </div>
                             )}
-                            
+
                             <div className="send-email-section">
-                                <button 
+                                <button
                                     className="back-to-compose-btn"
                                     onClick={() => setActiveTab('write')}
                                 >
                                     Back to Compose
                                 </button>
-                                <button 
+                                <button
                                     className="send-email-btn"
                                     onClick={handleSendEmail}
                                     disabled={sendingEmail || selectedUsers.length === 0 || !emailSubject || !emailBody}
@@ -627,13 +639,13 @@ For Gmail:
                             </div>
                         </div>
                     )}
-                    
+
                     {activeTab === 'sent' && (
                         <div className="sent-mail-container">
                             <div className="sent-mail-header">
                                 <h2>Email Sending History</h2>
                             </div>
-                            
+
                             {sentMailsLoading ? (
                                 <p>Loading sent emails...</p>
                             ) : sentMails.length === 0 ? (

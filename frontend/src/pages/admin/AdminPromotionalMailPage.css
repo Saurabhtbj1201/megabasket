@@ -215,9 +215,10 @@
 }
 
 .template-hint h4 {
-    margin-top: 0;
+    margin-top: 1rem;
     margin-bottom: 0.5rem;
     color: #495057;
+    font-size: 1rem;
 }
 
 .template-hint p {
@@ -546,6 +547,91 @@
     margin: 0;
     font-size: 1.1rem;
     max-width: 400px;
+}
+
+/* HTML Editor Styles */
+.email-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.editor-mode-toggle {
+    display: flex;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mode-btn {
+    background-color: #f8f9fa;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.mode-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.html-editor {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.html-code-editor {
+    width: 100%;
+    min-height: 300px;
+    padding: 1rem;
+    font-family: monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #212529;
+    border: none;
+    resize: vertical;
+}
+
+.html-preview {
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: white;
+    border: none;
+}
+
+/* Make sure the template hints are more helpful for HTML users */
+.template-hint code {
+    font-family: monospace;
+    background-color: #f8f9fa;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    border: 1px solid #e9ecef;
+}
+
+/* HTML Example Styles */
+.html-example {
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    margin-top: 0.5rem;
+    color: #333;
 }
 
 /* Responsive adjustments */

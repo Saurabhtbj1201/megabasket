@@ -234,10 +234,15 @@ const sendEmail = asyncHandler(async (req, res) => {
         
         // Send emails to each user
         const emailPromises = users.map(user => {
-            // Replace placeholders with actual user data
-            const personalizedBody = body
+            // Replace placeholders with actual user data and environment variables
+            let personalizedBody = body
                 .replace(/{{name}}/g, user.name)
                 .replace(/{{email}}/g, user.email);
+                
+            // Replace environment variables
+            personalizedBody = personalizedBody
+                .replace(/\${process\.env\.FRONTEND_URL}/g, process.env.FRONTEND_URL || 'https://megabasket.vercel.app')
+                .replace(/\${new Date\(\)\.getFullYear\(\)}/g, new Date().getFullYear());
                 
             const mailOptions = {
                 from: process.env.EMAIL_USER || 'noreply@megabasket.com',
