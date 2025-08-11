@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ProductCard from '../components/ProductCard';
@@ -12,6 +12,7 @@ import './AllCategoriesPage.css'; // For shared status styles
 
 const CategoryPage = () => {
     const { categoryId } = useParams();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const subcategoryParam = searchParams.get('subcategory');
     const [products, setProducts] = useState([]);
@@ -30,7 +31,13 @@ const CategoryPage = () => {
     const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
 
     useEffect(() => {
+        // Store the current category ID in sessionStorage for back navigation from product pages
+        if (categoryId) {
+            sessionStorage.setItem('lastVisitedCategory', categoryId);
+        }
+        
         const fetchInitialData = async () => {
+            setLoading(true); // Ensure loading is true at start
             try {
                 const [categoriesRes, subCategoriesRes] = await Promise.all([
                     axios.get('/api/categories'),
@@ -50,6 +57,8 @@ const CategoryPage = () => {
                 
             } catch (error) {
                 toast.error('Could not fetch page data.');
+            } finally {
+                setLoading(false); // Set loading to false regardless of success/failure
             }
         };
         
@@ -123,6 +132,19 @@ const CategoryPage = () => {
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    // Add a check for loading state
+    if (loading) {
+        return (
+            <div className="preloader">
+                <p>Loading Category Products...</p>
+            </div>
+        );
+    }
+
+    if (!categoryName) {
+        return <div className="container"><p>Category not found.</p></div>;
+    }
 
     return (
         <>

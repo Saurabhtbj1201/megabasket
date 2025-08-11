@@ -18,6 +18,9 @@ const OrderSuccessPage = () => {
     const successSound = useRef(new Audio('/order.mp3'));
 
     useEffect(() => {
+        // Scroll to top when component mounts
+        window.scrollTo(0, 0);
+        
         // Prevent user from going back
         window.history.pushState(null, document.title, window.location.href);
         window.addEventListener('popstate', () => {
@@ -59,6 +62,20 @@ const OrderSuccessPage = () => {
         return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
     };
 
+    // Function to determine status color
+    const getStatusColor = (status) => {
+        switch(status) {
+            case 'Order Received': return 'var(--primary-color)';
+            case 'Processing': return '#FF9800';
+            case 'Order Dispatched': return '#2196F3';
+            case 'Shipped': return '#03A9F4';
+            case 'In Transit': return '#9C27B0';
+            case 'Delivered': return 'var(--success-color)';
+            case 'Cancelled': return 'var(--danger-color)';
+            default: return '#607D8B';
+        }
+    };
+
     return (
         <>
             <Meta title="Order Successful! | MegaBasket" description="Your order has been placed successfully. Thank you for shopping with MegaBasket." noIndex={true} />
@@ -72,6 +89,24 @@ const OrderSuccessPage = () => {
                     </div>
                     <h1>Thank You for Your Purchase!</h1>
                     <p>Your order has been successfully placed. A confirmation has been sent to your email.</p>
+
+                    {/* Order Status Display */}
+                    <div className="order-status-container">
+                        <div 
+                            className="status-badge" 
+                            style={{ 
+                                backgroundColor: getStatusColor(order.status),
+                                color: 'white',
+                                display: 'inline-block',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '20px',
+                                margin: '0 0 1.5rem 0',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            Current Status: {order.status}
+                        </div>
+                    </div>
 
                     <div className="order-details-box">
                         <div className="order-details-header"><strong>Order Summary</strong></div>
@@ -109,10 +144,10 @@ const OrderSuccessPage = () => {
                     </div>
 
                     <div className="whats-next">
-                        <h2>What’s Next?</h2>
+                        <h2>What's Next?</h2>
                         <ul>
                             <li><FiPackage size={24} color="var(--primary-color)" /> We are preparing your order for dispatch.</li>
-                            <li><FiTruck size={24} color="var(--primary-color)" /> You’ll be notified once it’s shipped.</li>
+                            <li><FiTruck size={24} color="var(--primary-color)" /> You'll be notified once it's shipped.</li>
                             <li><FiSearch size={24} color="var(--primary-color)" /> Track your order anytime from the "My Orders" page.</li>
                         </ul>
                     </div>

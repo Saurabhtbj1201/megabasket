@@ -113,6 +113,16 @@ const ProductDetailPage = () => {
         }
     };
 
+    // Add handler for back button or provide a way to go back to category
+    const handleBackToCategory = () => {
+        const lastCategoryId = sessionStorage.getItem('lastVisitedCategory');
+        if (lastCategoryId) {
+            navigate(`/category/${lastCategoryId}`);
+        } else {
+            navigate('/');
+        }
+    };
+
     if (loading) {
         return (
             <div className="preloader">
@@ -137,6 +147,22 @@ const ProductDetailPage = () => {
                 ogType="product"
             />
             <div className="container">
+                {/* Add back button to return to category */}
+                <button 
+                    onClick={handleBackToCategory} 
+                    className="back-button"
+                    style={{
+                        padding: '8px 15px',
+                        margin: '10px 0',
+                        background: 'none',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    ← Back to {product.category.name}
+                </button>
+                
                 <div className="product-detail-page">
                     <section className="product-main-section">
                         <div className="product-gallery">
