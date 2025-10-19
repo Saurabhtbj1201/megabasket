@@ -29,6 +29,14 @@
     color: var(--dark-color);
     font-size: 1.5rem;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-logo-image {
+    width: 30px;
+    height: 30px;
 }
 
 .header-search {

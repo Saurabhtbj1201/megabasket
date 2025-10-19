@@ -70,6 +70,7 @@ const Header = () => {
     <>
       <header className="header">
         <Link to="/" className="header-logo">
+          <img src="/favicon.png" alt="MegaBasket Logo" className="header-logo-image" />
           MegaBasket
         </Link>
         

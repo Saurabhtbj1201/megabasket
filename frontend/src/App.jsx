@@ -27,6 +27,7 @@ import CookiePolicyPage from './pages/CookiePolicyPage';
 import AllCategoriesPage from './pages/AllCategoriesPage';
 import TopOffersPage from './pages/TopOffersPage';
 import axios from 'axios';
+import NotFound from './pages/NotFound';
 
 // Set axios base URL from env variable (works for both dev and prod)
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '/';
@@ -99,6 +100,9 @@ function App() {
             <Route path="/admin/promotional-mail" element={<AdminPromotionalMailPage />} />
           </Route>
         </Route>
+
+        {/* 404 Not Found Route */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );
