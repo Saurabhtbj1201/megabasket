@@ -123,6 +123,18 @@ const AdminOrderPage = () => {
                                 <div>
                                     <h4>Payment & Status</h4>
                                     <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
+                                    <p><strong>Payment Status:</strong> 
+                                        <span style={{ 
+                                            color: order.isPaid ? 'var(--success-color)' : 'var(--danger-color)',
+                                            fontWeight: 'bold',
+                                            marginLeft: '0.5rem'
+                                        }}>
+                                            {order.isPaid ? 'Paid' : 'Not Paid'}
+                                        </span>
+                                    </p>
+                                    {order.paymentResult?.id && (
+                                        <p><strong>Transaction ID:</strong> {order.paymentResult.id}</p>
+                                    )}
                                     <p><strong>Subtotal:</strong> {formatCurrency(order.itemsPrice)}</p>
                                     <p><strong>Shipping & Charges:</strong> {formatCurrency(order.shippingPrice)}</p>
                                     <p><strong>GST:</strong> {formatCurrency(order.taxPrice)}</p>
@@ -134,6 +146,7 @@ const AdminOrderPage = () => {
                                             value={order.status}
                                             onChange={(e) => handleStatusChange(order._id, e.target.value)}
                                             style={{ borderColor: getStatusColor(order.status), color: getStatusColor(order.status) }}
+                                            disabled={order.status === 'Cancelled' || !order.isPaid}
                                         >
                                             <option value="Order Received">Order Received</option>
                                             <option value="Processing">Processing</option>
@@ -143,6 +156,15 @@ const AdminOrderPage = () => {
                                             <option value="Delivered">Delivered</option>
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
+                                        {!order.isPaid && order.paymentMethod !== 'COD' && (
+                                            <span style={{ 
+                                                fontSize: '0.8rem', 
+                                                color: 'var(--danger-color)',
+                                                fontStyle: 'italic'
+                                            }}>
+                                                (Payment pending)
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>

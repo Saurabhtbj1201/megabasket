@@ -3,6 +3,8 @@ const Category = require('../models/categoryModel');
 const SubCategory = require('../models/subCategoryModel');
 const asyncHandler = require('express-async-handler');
 const aws = require('aws-sdk');
+const csv = require('csv-parser');
+const fs = require('fs');
 
 // Configure AWS S3
 const s3 = new aws.S3({
@@ -260,4 +262,203 @@ const getProductById = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { searchProducts, getAdminProducts, getProducts, getProductsByCategory, getProductsByMultipleCategories, getTopOffers, createProduct, updateProduct, deleteProduct, getProductById };
+// @desc    Bulk import products from CSV
+// @route   POST /api/products/bulk-import
+// @access  Private/Admin
+const bulkImportProducts = asyncHandler(async (req, res) => {
+    if (!req.file) {
+        res.status(400);
+        throw new Error('CSV file is required');
+    }
+
+    const csvFilePath = req.file.path;
+    const products = [];
+    const errors = [];
+    let rowNumber = 1;
+
+    try {
+        // Get all categories and subcategories for validation
+        const categories = await Category.find({});
+        const subcategories = await SubCategory.find({});
+        const categoryMap = {};
+        const subcategoryMap = {};
+        
+        categories.forEach(cat => {
+            categoryMap[cat.name.toLowerCase()] = cat._id;
+        });
+        
+        subcategories.forEach(sub => {
+            subcategoryMap[sub.name.toLowerCase()] = sub._id;
+        });
+
+        return new Promise((resolve, reject) => {
+            fs.createReadStream(csvFilePath)
+                .pipe(csv())
+                .on('data', (row) => {
+                    rowNumber++;
+                    try {
+                        // Validate required fields
+                        if (!row.name || !row.price || !row.category) {
+                            errors.push(`Row ${rowNumber}: Missing required fields (name, price, category)`);
+                            return;
+                        }
+
+                        // Find category ID
+                        const categoryId = categoryMap[row.category.toLowerCase()];
+                        if (!categoryId) {
+                            errors.push(`Row ${rowNumber}: Category "${row.category}" not found`);
+                            return;
+                        }
+
+                        // Parse subcategories - only add warnings, don't block import
+                        let subCategoryIds = [];
+                        if (row.subcategory && row.subcategory.trim()) {
+                            const subcategoryNames = row.subcategory.split(',').map(name => name.trim().toLowerCase());
+                            subcategoryNames.forEach(name => {
+                                if (name) {
+                                    const subId = subcategoryMap[name];
+                                    if (subId) {
+                                        subCategoryIds.push(subId);
+                                    } else {
+                                        // Just add a warning, don't block the import
+                                        console.warn(`Row ${rowNumber}: Subcategory "${name}" not found - skipping`);
+                                    }
+                                }
+                            });
+                        }
+
+                        // Parse specifications
+                        let specifications = [];
+                        if (row.specifications && row.specifications.trim()) {
+                            const specs = row.specifications.split('|');
+                            specifications = specs.map(spec => {
+                                const [key, value] = spec.split(':');
+                                return { key: key?.trim(), value: value?.trim() };
+                            }).filter(spec => spec.key && spec.value);
+                        }
+
+                        // Parse tags
+                        const tags = row.tags ? row.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+
+                        // Parse images
+                        let images = ['https://via.placeholder.com/300']; // Default placeholder
+                        if (row.photo && row.photo.trim()) {
+                            images = [row.photo.trim()];
+                            
+                            // Add additional photos if provided
+                            if (row['additional photo'] && row['additional photo'].trim()) {
+                                const additionalPhotos = row['additional photo'].split(',')
+                                    .map(url => url.trim())
+                                    .filter(url => url);
+                                images = [...images, ...additionalPhotos];
+                            }
+                        }
+
+                        const product = {
+                            name: row.name.trim(),
+                            description: row.description || '',
+                            price: parseFloat(row.price) || 0,
+                            discount: parseFloat(row.discount) || 0,
+                            category: categoryId,
+                            subCategory: subCategoryIds,
+                            stock: parseInt(row.stock) || 0,
+                            brand: row.brand || '',
+                            color: row.color || '',
+                            tags,
+                            shippingInfo: row.shippingInfo || 'Standard shipping',
+                            status: row.status || 'Published',
+                            specifications,
+                            images,
+                            rating: 0,
+                            reviews: []
+                        };
+
+                        products.push(product);
+                    } catch (error) {
+                        errors.push(`Row ${rowNumber}: ${error.message}`);
+                    }
+                })
+                .on('end', async () => {
+                    try {
+                        // Clean up uploaded file
+                        if (fs.existsSync(csvFilePath)) {
+                            fs.unlinkSync(csvFilePath);
+                        }
+
+                        if (errors.length > 0 && products.length === 0) {
+                            return res.status(400).json({
+                                message: 'Import failed with errors',
+                                errors,
+                                imported: 0
+                            });
+                        }
+
+                        if (products.length === 0) {
+                            return res.status(400).json({
+                                message: 'No valid products found in CSV',
+                                imported: 0
+                            });
+                        }
+
+                        // Insert products in bulk
+                        const insertedProducts = await Product.insertMany(products);
+                        
+                        const responseData = {
+                            message: `Successfully imported ${insertedProducts.length} products`,
+                            imported: insertedProducts.length,
+                            products: insertedProducts
+                        };
+
+                        if (errors.length > 0) {
+                            responseData.warnings = errors;
+                            responseData.message += ` (${errors.length} warnings)`;
+                        }
+                        
+                        res.status(201).json(responseData);
+                        resolve();
+                    } catch (error) {
+                        console.error('Database insertion error:', error);
+                        res.status(500).json({
+                            message: 'Error saving products to database',
+                            error: error.message
+                        });
+                        reject(error);
+                    }
+                })
+                .on('error', (error) => {
+                    console.error('CSV parsing error:', error);
+                    if (fs.existsSync(csvFilePath)) {
+                        fs.unlinkSync(csvFilePath);
+                    }
+                    res.status(500).json({
+                        message: 'Error processing CSV file',
+                        error: error.message
+                    });
+                    reject(error);
+                });
+        });
+    } catch (error) {
+        console.error('Bulk import error:', error);
+        if (fs.existsSync(csvFilePath)) {
+            fs.unlinkSync(csvFilePath);
+        }
+        res.status(500).json({
+            message: 'Error processing bulk import',
+            error: error.message
+        });
+    }
+});
+
+module.exports = { 
+    searchProducts, 
+    getAdminProducts, 
+    getProducts, 
+    getProductsByCategory, 
+    getProductsByMultipleCategories, 
+    getTopOffers, 
+    createProduct, 
+    updateProduct, 
+    deleteProduct, 
+    getProductById,
+    bulkImportProducts
+};

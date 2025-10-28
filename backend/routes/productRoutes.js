@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { protect, admin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 const {
@@ -13,7 +14,11 @@ const {
     updateProduct,
     deleteProduct,
     getProductById,
+    bulkImportProducts,
 } = require('../controllers/productController');
+
+// CSV upload configuration
+const csvUpload = multer({ dest: 'uploads/' });
 
 const imageUploadFields = [
     { name: 'defaultPhoto', maxCount: 1 },
@@ -23,6 +28,7 @@ const imageUploadFields = [
 router.route('/search').get(searchProducts);
 router.route('/').get(getProducts).post(protect, admin, upload.fields(imageUploadFields), createProduct);
 router.route('/admin').get(protect, admin, getAdminProducts);
+router.route('/bulk-import').post(protect, admin, csvUpload.single('csvFile'), bulkImportProducts);
 router.route('/top-offers').get(getTopOffers);
 router.route('/categories').get(getProductsByMultipleCategories);
 router.route('/category/:categoryId').get(getProductsByCategory);

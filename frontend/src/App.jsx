@@ -28,6 +28,8 @@ import AllCategoriesPage from './pages/AllCategoriesPage';
 import TopOffersPage from './pages/TopOffersPage';
 import axios from 'axios';
 import NotFound from './pages/NotFound';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentFailurePage from './pages/PaymentFailurePage';
 
 // Set axios base URL from env variable (works for both dev and prod)
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '/';
@@ -81,6 +83,8 @@ function App() {
           <Route path="/return-policy" element={<ReturnPolicyPage />} />
           <Route path="/cancellation-policy" element={<CancellationPolicyPage />} />
           <Route path="/cookie-policy" element={<CookiePolicyPage />} />
+          <Route path="/payment/success" element={<PaymentSuccessPage />} />
+          <Route path="/payment/failure" element={<PaymentFailurePage />} />
         </Route>
 
         {/* Admin Routes */}

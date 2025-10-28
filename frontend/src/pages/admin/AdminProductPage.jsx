@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiUpload } from 'react-icons/fi';
 import ProductModal from '../../components/admin/ProductModal';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import BulkImportModal from '../../components/admin/BulkImportModal';
 import { formatCurrency } from '../../utils/formatCurrency';
 import Meta from '../../components/Meta';
 import './AdminProductPage.css';
@@ -18,6 +19,7 @@ const AdminProductPage = () => {
     const [activeTab, setActiveTab] = useState('Published');
     const [filters, setFilters] = useState({ search: '', category: '' });
     const [isSaving, setIsSaving] = useState(false);
+    const [showBulkImportModal, setShowBulkImportModal] = useState(false);
 
     const token = JSON.parse(localStorage.getItem('adminInfo'))?.token;
     const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -88,6 +90,30 @@ const AdminProductPage = () => {
         }
     };
 
+    const handleBulkImport = async (csvFile) => {
+        try {
+            const formData = new FormData();
+            formData.append('csvFile', csvFile);
+            
+            const response = await axios.post('/api/products/bulk-import', formData, {
+                ...config,
+                headers: { 
+                    ...config.headers, 
+                    'Content-Type': 'multipart/form-data' 
+                }
+            });
+            
+            toast.success(`Successfully imported ${response.data.imported} products!`);
+            setShowBulkImportModal(false);
+            
+            // Refetch products
+            const { data } = await axios.get('/api/products/admin', config);
+            setProducts(data);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to import products.');
+        }
+    };
+
     const filteredProducts = products
         .filter(p => p.status === activeTab || activeTab === 'All')
         .filter(p => p.name.toLowerCase().includes(filters.search.toLowerCase()))
@@ -100,9 +126,11 @@ const AdminProductPage = () => {
                 <div className="product-page-header">
                     <h1>Product Management</h1>
                     <div className="filters-and-add">
+                        <button className="auth-button secondary" onClick={() => setShowBulkImportModal(true)}>
+                            <FiUpload /> Bulk Import
+                        </button>
                         <button className="auth-button" onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}>Add New Product</button>
                     </div>
-                    
                 </div>
                 <div className="filters">
                             <input type="text" placeholder="Search products..." className="admin-search-input" onChange={(e) => setFilters({ ...filters, search: e.target.value })} />
@@ -154,6 +182,11 @@ const AdminProductPage = () => {
                     showCloseButton={true}  // Add this prop to enable close button
                 />
                 <ConfirmationModal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)} onConfirm={confirmDeleteProduct} title="Delete Product" message="Are you sure you want to delete this product?" />
+                <BulkImportModal 
+                    isOpen={showBulkImportModal}
+                    onClose={() => setShowBulkImportModal(false)}
+                    onImport={handleBulkImport}
+                />
             </div>
         </>
     );

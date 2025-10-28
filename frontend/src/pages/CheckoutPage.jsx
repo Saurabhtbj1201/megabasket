@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../utils/formatCurrency';
 import AddressModal from '../components/AddressModal';
+import PayUForm from '../components/PayUForm';
+import PaymentForm from '../components/PaymentForm';
 import { FiLock, FiUser, FiPhone, FiHome, FiEdit } from 'react-icons/fi';
 import Meta from '../components/Meta';
 import './CheckoutPage.css';
@@ -20,6 +22,8 @@ const CheckoutPage = () => {
     const [isSavingAddress, setIsSavingAddress] = useState(false);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('UPI');
+    const [paymentData, setPaymentData] = useState(null);
+    const [paymentUrl, setPaymentUrl] = useState('');
     const { userInfo, updateUserInfo, setCartCount } = useAuth();
     const navigate = useNavigate();
 
@@ -116,10 +120,19 @@ const CheckoutPage = () => {
                 totalPrice: grandTotal,
             };
             const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-            const { data: newOrder } = await axios.post('/api/orders', orderData, config);
-            toast.success('Order placed successfully!');
-            setCartCount(0); // Clear cart count in context
-            navigate(`/order/${newOrder._id}`); // Redirect to a confirmation page (to be created)
+            const response = await axios.post('/api/orders', orderData, config);
+            
+            if (paymentMethod === 'COD') {
+                toast.success('Order placed successfully!');
+                setCartCount(0);
+                navigate(`/order/${response.data._id}`);
+            } else {
+                // Handle PayU payment for all online payment methods
+                setPaymentData(response.data.paymentData);
+                setPaymentUrl(response.data.paymentUrl);
+                setCartCount(0);
+                // PayU form will auto-submit and redirect to payment gateway
+            }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to place order.');
         } finally {
@@ -223,7 +236,9 @@ const CheckoutPage = () => {
                                         {isPlacingOrder ? <><span className="spinner"></span> Placing Order...</> : 'Place Order'}
                                     </button>
                                 ) : (
-                                    <button className="auth-button payment-btn"><FiLock /> Continue to Payment</button>
+                                    <button className="auth-button payment-btn" onClick={handlePlaceOrder} disabled={isPlacingOrder}>
+                                        <FiLock /> {isPlacingOrder ? <><span className="spinner"></span> Processing...</> : 'Continue to Payment'}
+                                    </button>
                                 )}
                                 <button onClick={() => navigate('/cart')} className="auth-button secondary">Back to Cart</button>
                             </div>
@@ -232,6 +247,7 @@ const CheckoutPage = () => {
                 </div>
                 <AddressModal isOpen={isAddressModalOpen} onClose={() => setIsAddressModalOpen(false)} onSave={handleSaveAddress} address={editingAddress} isSaving={isSavingAddress} />
             </div>
+            <PayUForm paymentData={paymentData} paymentUrl={paymentUrl} />
         </>
     );
 };
