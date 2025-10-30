@@ -1,6 +1,3 @@
-# Docs: https://github.com/Azure/webapps-deploy
-# This workflow deploys only the backend folder to Azure Web App
-
 name: Build and deploy Node.js backend to Azure Web App - MegaBasket
 
 on:
@@ -16,17 +13,18 @@ jobs:
       contents: read
 
     steps:
-      # 1️⃣ Checkout the repo
-      - uses: actions/checkout@v4
+      # 1️⃣ Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 2️⃣ Set up Node.js
-      - name: Set up Node.js version
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
 
-      # 3️⃣ Install dependencies and build inside the backend folder
-      - name: Install and build backend
+      # 3️⃣ Install dependencies and build backend
+      - name: Install dependencies (backend)
         working-directory: ./backend
         run: |
           npm install
@@ -36,8 +34,8 @@ jobs:
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: node-backend
-          path: ./backend
+          name: backend-artifact
+          path: backend
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,11 +45,12 @@ jobs:
       contents: read
 
     steps:
-      # 5️⃣ Download backend artifact
+      # 5️⃣ Download artifact to current directory
       - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
-          name: node-backend
+          name: backend-artifact
+          path: ./backend
 
       # 6️⃣ Login to Azure
       - name: Login to Azure
@@ -61,11 +60,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CAA85F57CDC0438BB750ED14CA088F62 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E7AB0E054BD547EE9EC6F2EB7A189941 }}
 
-      # 7️⃣ Deploy backend to Azure Web App
+      # 7️⃣ Deploy the backend folder to Azure
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'MegaBasket'        # your Azure Web App name
+          app-name: 'MegaBasket'
           slot-name: 'Production'
           package: ./backend
