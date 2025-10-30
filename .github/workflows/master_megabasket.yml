@@ -61,5 +61,6 @@ jobs:
         with:
           app-name: 'MegaBasket'
           slot-name: 'Production'
-          package: .
+          package: ./backend
+
           
