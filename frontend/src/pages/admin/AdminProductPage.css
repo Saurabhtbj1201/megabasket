@@ -201,3 +201,50 @@
     width: auto;
     min-width: 120px;
 }
+
+.status-dropdown {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+}
+
+.status-dropdown:hover {
+    border-color: var(--primary-color);
+}
+
+.status-dropdown:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.out-of-stock-text {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.loading-trigger {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.loading-trigger p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.no-products {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+.no-products p {
+    margin: 0;
+    font-size: 1.1rem;
+}

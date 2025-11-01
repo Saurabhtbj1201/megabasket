@@ -15,6 +15,7 @@ const {
     deleteProduct,
     getProductById,
     bulkImportProducts,
+    updateProductStatus,
 } = require('../controllers/productController');
 
 // CSV upload configuration
@@ -32,6 +33,7 @@ router.route('/bulk-import').post(protect, admin, csvUpload.single('csvFile'), b
 router.route('/top-offers').get(getTopOffers);
 router.route('/categories').get(getProductsByMultipleCategories);
 router.route('/category/:categoryId').get(getProductsByCategory);
+router.patch('/:id/status', protect, admin, updateProductStatus);
 router.route('/:id').get(getProductById).put(protect, admin, upload.fields(imageUploadFields), updateProduct).delete(protect, admin, deleteProduct);
 
 module.exports = router;

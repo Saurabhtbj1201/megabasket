@@ -449,6 +449,29 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Update product status
+// @route   PATCH /api/products/:id/status
+// @access  Private/Admin
+const updateProductStatus = asyncHandler(async (req, res) => {
+    const { status } = req.body;
+    
+    if (!['Published', 'Draft', 'Hidden'].includes(status)) {
+        res.status(400);
+        throw new Error('Invalid status value');
+    }
+    
+    const product = await Product.findById(req.params.id);
+    
+    if (product) {
+        product.status = status;
+        const updatedProduct = await product.save();
+        res.json(updatedProduct);
+    } else {
+        res.status(404);
+        throw new Error('Product not found');
+    }
+});
+
 module.exports = { 
     searchProducts, 
     getAdminProducts, 
@@ -460,5 +483,6 @@ module.exports = {
     updateProduct, 
     deleteProduct, 
     getProductById,
-    bulkImportProducts
+    bulkImportProducts,
+    updateProductStatus
 };

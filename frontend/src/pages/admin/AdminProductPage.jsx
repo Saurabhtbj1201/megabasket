@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FiEdit, FiTrash2, FiUpload } from 'react-icons/fi';
@@ -20,6 +20,13 @@ const AdminProductPage = () => {
     const [filters, setFilters] = useState({ search: '', category: '' });
     const [isSaving, setIsSaving] = useState(false);
     const [showBulkImportModal, setShowBulkImportModal] = useState(false);
+    
+    // Infinite scroll states
+    const [displayedProducts, setDisplayedProducts] = useState([]);
+    const [hasMore, setHasMore] = useState(true);
+    const [page, setPage] = useState(1);
+    const PRODUCTS_PER_PAGE = 20;
+    const observerTarget = useRef(null);
 
     const token = JSON.parse(localStorage.getItem('adminInfo'))?.token;
     const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -45,6 +52,7 @@ const AdminProductPage = () => {
             published: products.filter(p => p.status === 'Published').length,
             draft: products.filter(p => p.status === 'Draft').length,
             hidden: products.filter(p => p.status === 'Hidden').length,
+            outOfStock: products.filter(p => p.stock === 0).length,
             all: products.length,
         };
     }, [products]);
@@ -114,10 +122,87 @@ const AdminProductPage = () => {
         }
     };
 
-    const filteredProducts = products
-        .filter(p => p.status === activeTab || activeTab === 'All')
-        .filter(p => p.name.toLowerCase().includes(filters.search.toLowerCase()))
-        .filter(p => filters.category ? p.category && p.category._id === filters.category : true);
+    const filteredProducts = useMemo(() => {
+        let filtered = products;
+        
+        // Filter by tab
+        if (activeTab === 'Out of Stock') {
+            filtered = filtered.filter(p => p.stock === 0);
+        } else if (activeTab !== 'All') {
+            filtered = filtered.filter(p => p.status === activeTab);
+        }
+        
+        // Filter by search
+        if (filters.search) {
+            filtered = filtered.filter(p => 
+                p.name.toLowerCase().includes(filters.search.toLowerCase())
+            );
+        }
+        
+        // Filter by category
+        if (filters.category) {
+            filtered = filtered.filter(p => 
+                p.category && p.category._id === filters.category
+            );
+        }
+        
+        return filtered;
+    }, [products, activeTab, filters]);
+
+    // Load products in chunks
+    useEffect(() => {
+        const startIndex = 0;
+        const endIndex = page * PRODUCTS_PER_PAGE;
+        const productsToDisplay = filteredProducts.slice(startIndex, endIndex);
+        
+        setDisplayedProducts(productsToDisplay);
+        setHasMore(endIndex < filteredProducts.length);
+    }, [filteredProducts, page]);
+
+    // Reset pagination when filters/tab change
+    useEffect(() => {
+        setPage(1);
+    }, [activeTab, filters]);
+
+    // Intersection Observer for infinite scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && hasMore) {
+                    setPage(prevPage => prevPage + 1);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
+            }
+        };
+    }, [hasMore]);
+
+    const handleStatusChange = async (productId, newStatus) => {
+        try {
+            await axios.patch(`/api/products/${productId}/status`, 
+                { status: newStatus }, 
+                config
+            );
+            
+            // Update local state
+            setProducts(products.map(p => 
+                p._id === productId ? { ...p, status: newStatus } : p
+            ));
+            
+            toast.success('Product status updated successfully!');
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update status.');
+        }
+    };
 
     return (
         <>
@@ -133,12 +218,12 @@ const AdminProductPage = () => {
                     </div>
                 </div>
                 <div className="filters">
-                            <input type="text" placeholder="Search products..." className="admin-search-input" onChange={(e) => setFilters({ ...filters, search: e.target.value })} />
-                            <select onChange={(e) => setFilters({ ...filters, category: e.target.value })}>
-                                <option value="">All Categories</option>
-                                {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
-                            </select>
-                        </div>
+                    <input type="text" placeholder="Search products..." className="admin-search-input" onChange={(e) => setFilters({ ...filters, search: e.target.value })} />
+                    <select onChange={(e) => setFilters({ ...filters, category: e.target.value })}>
+                        <option value="">All Categories</option>
+                        {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                    </select>
+                </div>
                 <div className="tabs-container">
                     <button onClick={() => setActiveTab('Published')} className={`tab-btn ${activeTab === 'Published' ? 'active' : ''}`}>
                         Published <span className="product-tab-count">{productCounts.published}</span>
@@ -149,12 +234,15 @@ const AdminProductPage = () => {
                     <button onClick={() => setActiveTab('Hidden')} className={`tab-btn ${activeTab === 'Hidden' ? 'active' : ''}`}>
                         Hidden <span className="product-tab-count">{productCounts.hidden}</span>
                     </button>
+                    <button onClick={() => setActiveTab('Out of Stock')} className={`tab-btn ${activeTab === 'Out of Stock' ? 'active' : ''}`}>
+                        Out of Stock <span className="product-tab-count">{productCounts.outOfStock}</span>
+                    </button>
                     <button onClick={() => setActiveTab('All')} className={`tab-btn ${activeTab === 'All' ? 'active' : ''}`}>
                         All Products <span className="product-tab-count">{productCounts.all}</span>
                     </button>
                 </div>
                 <div className="product-list">
-                    {filteredProducts.map(product => (
+                    {displayedProducts.map(product => (
                         <div key={product._id} className="product-list-item">
                             <img src={product.images[0]} alt={product.name} />
                             <div>
@@ -164,14 +252,39 @@ const AdminProductPage = () => {
                                 {product.color && <p className="product-meta">Color: {product.color}</p>}
                             </div>
                             <div>{formatCurrency(product.price)}</div>
-                            <div>{product.stock} in stock</div>
-                            <div>{product.status}</div>
+                            <div className={product.stock === 0 ? 'out-of-stock-text' : ''}>
+                                {product.stock} in stock
+                            </div>
+                            <div>
+                                <select 
+                                    value={product.status} 
+                                    onChange={(e) => handleStatusChange(product._id, e.target.value)}
+                                    className="status-dropdown"
+                                >
+                                    <option value="Published">Published</option>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
                             <div className="product-actions">
                                 <button onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}><FiEdit /></button>
                                 <button onClick={() => handleDeleteClick(product._id)}><FiTrash2 /></button>
                             </div>
                         </div>
                     ))}
+                    
+                    {/* Intersection observer target */}
+                    {hasMore && (
+                        <div ref={observerTarget} className="loading-trigger">
+                            <p>Loading more products...</p>
+                        </div>
+                    )}
+                    
+                    {displayedProducts.length === 0 && (
+                        <div className="no-products">
+                            <p>No products found.</p>
+                        </div>
+                    )}
                 </div>
                 <ProductModal 
                     isOpen={isModalOpen} 
