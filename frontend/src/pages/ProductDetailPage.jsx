@@ -8,6 +8,7 @@ import ProductCarousel from '../components/ProductCarousel';
 import Meta from '../components/Meta';
 import './ProductDetailPage.css';
 import './AllCategoriesPage.css'; // For shared status styles
+import { trackProductView, trackAddToCart } from '../utils/eventTracker';
 
 const ProductDetailPage = () => {
     const { id } = useParams();
@@ -16,6 +17,8 @@ const ProductDetailPage = () => {
     const [product, setProduct] = useState(null);
     const [similarProducts, setSimilarProducts] = useState([]);
     const [recommendedProducts, setRecommendedProducts] = useState([]);
+    const [alsoBought, setAlsoBought] = useState([]);
+    const [alsoViewed, setAlsoViewed] = useState([]);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
@@ -32,6 +35,29 @@ const ProductDetailPage = () => {
                 const { data } = await axios.get(`/api/products/${id}`);
                 setProduct(data);
                 setMainImage(data.images[0]);
+
+                // Track product view
+                await trackProductView(id, {
+                    category: data.category?.name,
+                    price: data.price,
+                    device: /mobile/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+                });
+
+                // Fetch also bought
+                try {
+                    const { data: alsoBoughtData } = await axios.get(`/api/recommendations/also-bought/${id}?limit=6`);
+                    setAlsoBought(alsoBoughtData);
+                } catch (error) {
+                    console.log('Could not fetch also-bought recommendations');
+                }
+
+                // Fetch also viewed
+                try {
+                    const { data: alsoViewedData } = await axios.get(`/api/recommendations/also-viewed/${id}?limit=6`);
+                    setAlsoViewed(alsoViewedData);
+                } catch (error) {
+                    console.log('Could not fetch also-viewed recommendations');
+                }
 
                 // Fetch similar products
                 const { data: similarData } = await axios.get(`/api/products/category/${data.category._id}`);
@@ -98,6 +124,10 @@ const ProductDetailPage = () => {
             const { data } = await axios.post('/api/cart', { productId: product._id, quantity }, config);
             const count = data.reduce((acc, item) => acc + item.quantity, 0);
             setCartCount(count);
+            
+            // Track add to cart event
+            await trackAddToCart(product._id, product.price, quantity);
+            
             toast.success(`${product.name} added to cart!`);
             return true;
         } catch (error) {
@@ -247,6 +277,14 @@ const ProductDetailPage = () => {
                         </div>
                     </section>
 
+                    {alsoBought.length > 0 && (
+                        <ProductCarousel title="Customers Also Bought" products={alsoBought} />
+                    )}
+                    
+                    {alsoViewed.length > 0 && (
+                        <ProductCarousel title="Customers Also Viewed" products={alsoViewed} />
+                    )}
+                    
                     <ProductCarousel title="From the Same Category" products={similarProducts} />
                     {userInfo && <ProductCarousel title="Recommended For You" products={recommendedProducts} />}
                 </div>

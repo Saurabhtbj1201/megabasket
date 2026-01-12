@@ -160,7 +160,7 @@ const SearchPage = () => {
                 <div className="search-page-container">
                     <aside className={`filter-sidebar ${isFilterOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
                         <button className="close-filter-btn" onClick={() => setIsFilterOpen(false)}><FiX /></button>
-                        <FilterSidebar products={products} allCategories={allCategories} allSubCategories={allSubCategories} onFilterChange={setFilters} />
+                        <FilterSidebar products={products} allCategories={allCategories} allSubCategories={allSubCategories} onFilterChange={setFilters} hideCategories={true} />
                     </aside>
                     <div className="search-results">
                         {renderContent()}

@@ -9,10 +9,12 @@ import { formatCurrency } from '../utils/formatCurrency';
 import Meta from '../components/Meta';
 import './CartPage.css';
 import './AllCategoriesPage.css'; // For shared status styles
+import { trackRemoveFromCart } from '../utils/eventTracker';
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [suggestedProducts, setSuggestedProducts] = useState([]);
+    const [cartRecommendations, setCartRecommendations] = useState([]);
     const [loading, setLoading] = useState(true);
     const { userInfo, setCartCount } = useAuth();
     const navigate = useNavigate();
@@ -35,15 +37,24 @@ const CartPage = () => {
         if (userInfo) {
             fetchCart();
         }
-        const fetchSuggested = async () => {
+        
+        // Fetch cart-specific recommendations
+        const fetchCartRecommendations = async () => {
             try {
-                const { data } = await axios.get('/api/products/top-offers');
-                setSuggestedProducts(data);
+                const sessionId = sessionStorage.getItem('sessionId');
+                const token = userInfo?.token;
+                const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+                
+                const { data } = await axios.get(
+                    `/api/recommendations/personalized?sessionId=${sessionId}&limit=8&context=cart`,
+                    config
+                );
+                setCartRecommendations(data);
             } catch (error) {
-                console.error("Failed to fetch suggested products");
+                console.error("Failed to fetch cart recommendations");
             }
         };
-        fetchSuggested();
+        fetchCartRecommendations();
     }, [userInfo]);
 
     const handleQuantityChange = async (productId, quantity) => {
@@ -66,6 +77,10 @@ const CartPage = () => {
             setCartItems(data);
             const count = data.reduce((acc, item) => acc + item.quantity, 0);
             setCartCount(count);
+            
+            // Track removal
+            await trackRemoveFromCart(productId);
+            
             toast.success('Item removed from cart.');
         } catch (error) {
             toast.error('Failed to remove item.');
@@ -158,7 +173,12 @@ const CartPage = () => {
                         </div>
                     </div>
                 </div>
-                <ProductCarousel title="You Might Also Like" products={suggestedProducts} />
+                
+                {cartRecommendations.length > 0 && (
+                    <ProductCarousel title="You May Also Like" products={cartRecommendations} />
+                )}
+                
+                <ProductCarousel title="Complete Your Purchase" products={suggestedProducts} />
             </div>
         </>
     );

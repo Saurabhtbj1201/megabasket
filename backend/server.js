@@ -34,6 +34,10 @@ app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/offers', require('./routes/offerRoutes')); 
 app.use('/api/email', require('./routes/emailRoutes')); // Add this line for email routes
+const eventRoutes = require('./routes/eventRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
+app.use('/api/events', eventRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 
 // --- Error Handling Middleware ---
@@ -64,6 +68,17 @@ app.use((err, req, res, next) => {
     });
 });
 
+// Conditionally import and start ML training schedule
+if (process.env.ENABLE_ML_TRAINING === 'true') {
+    try {
+        const { startMLTrainingSchedule } = require('./utils/trainMLModel');
+        startMLTrainingSchedule();
+        console.log('ML training schedule started');
+    } catch (error) {
+        console.warn('ML training module not available:', error.message);
+        console.log('Continuing without ML training functionality');
+    }
+}
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

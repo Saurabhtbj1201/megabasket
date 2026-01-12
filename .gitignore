@@ -75,6 +75,8 @@ web_modules/
 /backend/.env.*
 /frontend/.env
 /frontend/.env.*
+/ml-service/.env
+/ml-service/.env.*
 
 # parcel-bundler cache (https://parceljs.org/)
 /frontend/.cache/

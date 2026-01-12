@@ -10,6 +10,7 @@ import { FaArrowUp } from 'react-icons/fa';
 import './HomePage.css';
 import './AllCategoriesPage.css'; // For shared status styles
 import { fetchWithCache } from '../utils/cacheUtils';
+import { trackSearch } from '../utils/eventTracker';
 
 const HomePage = () => {
     const { userInfo } = useAuth();
@@ -19,28 +20,24 @@ const HomePage = () => {
     const [recentlyVisited, setRecentlyVisited] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    // Add state to track recently visited ids from localStorage
     const [visitedIds, setVisitedIds] = useState(() => {
         return JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
     });
+    const [personalizedRecs, setPersonalizedRecs] = useState([]);
+    const [trendingProducts, setTrendingProducts] = useState([]);
 
-    // Add this useEffect to reset scroll position when component mounts
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
-    // Add effect to listen for storage events
     useEffect(() => {
-        // Function to update visitedIds when localStorage changes
         const handleStorageChange = () => {
             const updatedIds = JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
             setVisitedIds(updatedIds);
         };
 
-        // Set up event listener for changes to localStorage
         window.addEventListener('storage', handleStorageChange);
 
-        // Check for changes every 5 seconds as a fallback (for same-tab navigation)
         const intervalId = setInterval(() => {
             const currentIds = JSON.parse(localStorage.getItem('recentlyVisited') || '[]');
             if (JSON.stringify(currentIds) !== JSON.stringify(visitedIds)) {
@@ -48,7 +45,6 @@ const HomePage = () => {
             }
         }, 5000);
 
-        // Clean up
         return () => {
             window.removeEventListener('storage', handleStorageChange);
             clearInterval(intervalId);
@@ -60,11 +56,9 @@ const HomePage = () => {
             setLoading(true);
             setError(null);
             try {
-                // Fetch Top Offers with caching (2 hours expiry)
                 const offersData = await fetchWithCache('/api/products/top-offers', 'topOffers', 7200000);
                 setTopOffers(offersData);
 
-                // Try to fetch dynamic offers with caching (1 hour expiry)
                 try {
                     const dynamicOffersData = await fetchWithCache('/api/offers', 'dynamicOffers', 3600000);
                     setDynamicOffers(dynamicOffersData);
@@ -73,10 +67,8 @@ const HomePage = () => {
                     setDynamicOffers([]);
                 }
 
-                // Fetch Categories with caching (24 hours expiry since they rarely change)
                 const categoriesData = await fetchWithCache('/api/categories', 'categories', 86400000);
                 
-                // Fetch products for each category with caching (4 hours expiry)
                 const categoryProductPromises = categoriesData.map(cat =>
                     fetchWithCache(`/api/products/category/${cat._id}`, `category_${cat._id}`, 14400000)
                 );
@@ -88,6 +80,29 @@ const HomePage = () => {
                 }));
                 setProductsByCategory(productsByCat);
 
+                // Fetch personalized recommendations
+                try {
+                    const sessionId = sessionStorage.getItem('sessionId');
+                    const token = userInfo?.token;
+                    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+                    
+                    const { data: personalizedData } = await axios.get(
+                        `/api/recommendations/personalized?sessionId=${sessionId}&limit=10&context=homepage`,
+                        config
+                    );
+                    setPersonalizedRecs(personalizedData);
+                } catch (error) {
+                    console.log('Could not fetch personalized recommendations:', error);
+                }
+
+                // Fetch trending products
+                try {
+                    const { data: trendingData } = await axios.get('/api/recommendations/trending?limit=10');
+                    setTrendingProducts(trendingData);
+                } catch (error) {
+                    console.log('Could not fetch trending products:', error);
+                }
+
             } catch (error) {
                 console.error("Failed to fetch home page data", error);
                 setError(`Failed to fetch home page data: ${error.message}`);
@@ -97,7 +112,7 @@ const HomePage = () => {
         };
 
         fetchHomePageData();
-    }, []);
+    }, [userInfo]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -118,13 +133,10 @@ const HomePage = () => {
     useEffect(() => {
         const fetchRecentlyVisited = async () => {
             if (userInfo) {
-                // Using visitedIds state instead of reading from localStorage
                 if (visitedIds.length > 0) {
                     try {
-                        // Use cached product data if available
                         const allProducts = await fetchWithCache('/api/products', 'allProducts', 3600000);
                         const visitedProducts = allProducts.filter(p => visitedIds.includes(p._id));
-                        // Preserve the order from localStorage
                         const orderedVisitedProducts = visitedIds
                             .map(id => visitedProducts.find(p => p._id === id))
                             .filter(Boolean);
@@ -136,7 +148,7 @@ const HomePage = () => {
             }
         };
         fetchRecentlyVisited();
-    }, [userInfo, visitedIds]); // Add visitedIds as dependency
+    }, [userInfo, visitedIds]);
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -165,12 +177,27 @@ const HomePage = () => {
                 <BannerSlider />
                 <CategoryNav />
                 <div className="container">
+                    {/* Personalized Section - Always show */}
+                    {personalizedRecs.length > 0 && (
+                        <ProductCarousel 
+                            title={userInfo ? "Recommended For You" : "Popular Right Now"} 
+                            products={personalizedRecs} 
+                        />
+                    )}
+
+                    {/* Trending Products */}
+                    {trendingProducts.length > 0 && (
+                        <ProductCarousel 
+                            title="Trending Now" 
+                            products={trendingProducts} 
+                        />
+                    )}
 
                     {userInfo && recentlyVisited.length > 0 && (
                         <div className="recommendations-container">
                             <ProductGrid title="Recently Visited" products={recentlyVisited} viewAllLink="/profile?tab=activity" />
                             <ProductGrid title="Similar Products" products={topOffers.slice(0, 4)} />
-                            <ProductGrid title="Recommended For You" products={topOffers.slice(4, 8)} />
+                            <ProductGrid title="Because You Viewed" products={topOffers.slice(4, 8)} />
                         </div>
                     )}
 

@@ -1,0 +1,266 @@
+.bulk-import-modal-large {
+    max-width: 95vw;
+    max-height: 90vh;
+    width: 95vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.bulk-import-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+    overflow: hidden;
+}
+
+.csv-preview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+    overflow: hidden;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.preview-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.preview-stats h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.error-badge, .success-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.error-badge {
+    background-color: #fee;
+    color: #dc3545;
+}
+
+.success-badge {
+    background-color: #d4edda;
+    color: #28a745;
+}
+
+.change-file-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.change-file-btn:hover {
+    background-color: #5a6268;
+}
+
+.table-wrapper {
+    flex: 1;
+    overflow: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.preview-table thead {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 10;
+}
+
+.preview-table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.preview-table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.preview-table tbody tr.error-row {
+    background-color: #fff5f5;
+}
+
+.preview-table tbody tr.error-row:hover {
+    background-color: #fee;
+}
+
+.row-number {
+    font-weight: 600;
+    color: #6c757d;
+    text-align: center;
+    width: 60px;
+}
+
+.editable-cell {
+    cursor: pointer;
+    position: relative;
+}
+
+.editable-cell.editing {
+    padding: 0;
+}
+
+.cell-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.edit-icon {
+    opacity: 0;
+    color: #6c757d;
+    font-size: 0.85rem;
+    transition: opacity 0.2s ease;
+}
+
+.editable-cell:hover .edit-icon {
+    opacity: 1;
+}
+
+.cell-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.error-cell {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: #dc3545;
+    cursor: help;
+}
+
+.error-cell:hover .error-tooltip {
+    display: block;
+}
+
+.error-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #dc3545;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 0.5rem;
+}
+
+.error-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #dc3545;
+}
+
+.error-tooltip div {
+    margin: 0.25rem 0;
+}
+
+.success-icon {
+    color: #28a745;
+    font-size: 1.1rem;
+}
+
+.remove-row-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.remove-row-btn:hover {
+    background-color: #c82333;
+}
+
+.modal-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .bulk-import-modal-large {
+        max-width: 98vw;
+        width: 98vw;
+    }
+
+    .preview-table {
+        font-size: 0.8rem;
+    }
+
+    .preview-table th,
+    .preview-table td {
+        padding: 0.4rem;
+    }
+
+    .preview-stats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}

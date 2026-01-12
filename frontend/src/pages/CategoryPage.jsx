@@ -8,7 +8,7 @@ import { FiFilter, FiX } from 'react-icons/fi';
 import { FaArrowUp } from 'react-icons/fa';
 import Meta from '../components/Meta';
 import './CategoryPage.css';
-import './AllCategoriesPage.css'; // For shared status styles
+import './AllCategoriesPage.css';
 
 const CategoryPage = () => {
     const { categoryId } = useParams();
@@ -31,13 +31,12 @@ const CategoryPage = () => {
     const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
 
     useEffect(() => {
-        // Store the current category ID in sessionStorage for back navigation from product pages
         if (categoryId) {
             sessionStorage.setItem('lastVisitedCategory', categoryId);
         }
         
         const fetchInitialData = async () => {
-            setLoading(true); // Ensure loading is true at start
+            setLoading(true);
             try {
                 const [categoriesRes, subCategoriesRes] = await Promise.all([
                     axios.get('/api/categories'),
@@ -49,7 +48,6 @@ const CategoryPage = () => {
                 setCategoryName(currentCat?.name || 'Category');
                 setSelectedSubCategoryId(subcategoryParam);
                 
-                // Now fetch products
                 if (categoriesRes.data.length > 0) {
                     const { data } = await axios.get(`/api/products/categories?ids=${categoryId}`);
                     setProducts(data);
@@ -58,7 +56,7 @@ const CategoryPage = () => {
             } catch (error) {
                 toast.error('Could not fetch page data.');
             } finally {
-                setLoading(false); // Set loading to false regardless of success/failure
+                setLoading(false);
             }
         };
         
@@ -133,7 +131,6 @@ const CategoryPage = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Add a check for loading state
     if (loading) {
         return (
             <div className="preloader">
@@ -191,7 +188,7 @@ const CategoryPage = () => {
                 <div className="category-page-container">
                     <aside className={`filter-sidebar ${isFilterOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
                         <button className="close-filter-btn" onClick={() => setIsFilterOpen(false)}><FiX /></button>
-                        <FilterSidebar products={products} allCategories={allCategories} onFilterChange={setFilters} />
+                        <FilterSidebar products={products} allCategories={allCategories} onFilterChange={setFilters} hideCategories={true} />
                     </aside>
                     <div className="category-results">
                         {filteredProducts.length > 0 ? (

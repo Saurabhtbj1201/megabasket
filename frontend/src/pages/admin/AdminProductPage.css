@@ -67,7 +67,7 @@
 
 .product-list-item {
     display: grid;
-    grid-template-columns: 80px 3fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 40px 80px 3fr 1fr 1fr 1fr 1fr;
     align-items: center;
     gap: 1rem;
     padding: 1rem;
@@ -75,6 +75,11 @@
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.product-list-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .product-list-item img {
@@ -93,6 +98,18 @@
     font-size: 0.85rem;
     color: #6c757d;
     margin: 4px 0 0;
+}
+
+.product-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
 }
 
 /* Bulk Import Modal Styles */
@@ -247,4 +264,102 @@
 .no-products p {
     margin: 0;
     font-size: 1.1rem;
+}
+
+.bulk-actions-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bulk-selected-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.bulk-selected-info input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.bulk-action-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.bulk-action-btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bulk-action-btn.status-btn {
+    background-color: #fff;
+    color: #667eea;
+}
+
+.bulk-action-btn.status-btn:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+.bulk-action-btn.stock-btn {
+    background-color: #fff;
+    color: #28a745;
+}
+
+.bulk-action-btn.stock-btn:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+.bulk-action-btn.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.bulk-action-btn.delete-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.bulk-action-modal {
+    max-width: 500px;
+}
+
+.bulk-modal-info {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.stock-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.stock-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
 }

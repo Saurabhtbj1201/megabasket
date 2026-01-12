@@ -1,35 +1,153 @@
 import React, { useState } from 'react';
-import { FiX, FiDownload, FiUpload } from 'react-icons/fi';
+import { FiX, FiDownload, FiUpload, FiAlertCircle, FiCheckCircle, FiEdit2 } from 'react-icons/fi';
+import Papa from 'papaparse';
 import '../AddressModal.css';
+import './BulkImportModal.css';
 
 const BulkImportModal = ({ isOpen, onClose, onImport }) => {
     const [csvFile, setCsvFile] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [previewData, setPreviewData] = useState([]);
+    const [validationErrors, setValidationErrors] = useState({});
+    const [editingCell, setEditingCell] = useState(null);
 
     if (!isOpen) return null;
+
+    const validateRow = (row, index) => {
+        const errors = [];
+        
+        if (!row.name || !row.name.trim()) {
+            errors.push('Name is required');
+        }
+        
+        if (!row.price || isNaN(parseFloat(row.price))) {
+            errors.push('Valid price is required');
+        }
+        
+        if (!row.category || !row.category.trim()) {
+            errors.push('Category is required');
+        }
+        
+        if (row.discount && (isNaN(parseFloat(row.discount)) || parseFloat(row.discount) < 0 || parseFloat(row.discount) > 100)) {
+            errors.push('Discount must be between 0-100');
+        }
+        
+        if (row.stock && (isNaN(parseInt(row.stock)) || parseInt(row.stock) < 0)) {
+            errors.push('Stock must be a positive number');
+        }
+
+        if (row.status && !['Published', 'Draft', 'Hidden'].includes(row.status)) {
+            errors.push('Status must be Published, Draft, or Hidden');
+        }
+        
+        return errors;
+    };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file && file.type === 'text/csv') {
             setCsvFile(file);
+            parseCSV(file);
         } else {
             alert('Please select a valid CSV file');
         }
     };
 
+    const parseCSV = (file) => {
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+                const data = results.data.map((row, index) => ({
+                    ...row,
+                    _rowIndex: index
+                }));
+                setPreviewData(data);
+                
+                // Validate all rows
+                const errors = {};
+                data.forEach((row, index) => {
+                    const rowErrors = validateRow(row, index);
+                    if (rowErrors.length > 0) {
+                        errors[index] = rowErrors;
+                    }
+                });
+                setValidationErrors(errors);
+            },
+            error: (error) => {
+                alert('Error parsing CSV: ' + error.message);
+            }
+        });
+    };
+
+    const handleCellEdit = (rowIndex, field, value) => {
+        const updatedData = [...previewData];
+        updatedData[rowIndex][field] = value;
+        setPreviewData(updatedData);
+        
+        // Re-validate the row
+        const rowErrors = validateRow(updatedData[rowIndex], rowIndex);
+        const newErrors = { ...validationErrors };
+        
+        if (rowErrors.length > 0) {
+            newErrors[rowIndex] = rowErrors;
+        } else {
+            delete newErrors[rowIndex];
+        }
+        
+        setValidationErrors(newErrors);
+    };
+
     const handleImport = async () => {
-        if (!csvFile) {
-            alert('Please select a CSV file');
+        // Check if there are any validation errors
+        if (Object.keys(validationErrors).length > 0) {
+            alert('Please fix all validation errors before importing');
+            return;
+        }
+
+        if (previewData.length === 0) {
+            alert('No data to import');
             return;
         }
         
         setIsProcessing(true);
         try {
-            await onImport(csvFile);
+            // Convert preview data back to CSV
+            const csv = Papa.unparse(previewData.map(row => {
+                const { _rowIndex, ...cleanRow } = row;
+                return cleanRow;
+            }));
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const file = new File([blob], csvFile.name, { type: 'text/csv' });
+            
+            await onImport(file);
+            
+            // Reset state
+            setCsvFile(null);
+            setPreviewData([]);
+            setValidationErrors({});
+            setEditingCell(null);
         } finally {
             setIsProcessing(false);
-            setCsvFile(null);
         }
+    };
+
+    const removeRow = (rowIndex) => {
+        const updatedData = previewData.filter((_, index) => index !== rowIndex);
+        setPreviewData(updatedData);
+        
+        // Update validation errors
+        const newErrors = {};
+        Object.keys(validationErrors).forEach(key => {
+            const errorIndex = parseInt(key);
+            if (errorIndex < rowIndex) {
+                newErrors[errorIndex] = validationErrors[errorIndex];
+            } else if (errorIndex > rowIndex) {
+                newErrors[errorIndex - 1] = validationErrors[errorIndex];
+            }
+        });
+        setValidationErrors(newErrors);
     };
 
     const downloadSample = () => {
@@ -48,9 +166,15 @@ const BulkImportModal = ({ isOpen, onClose, onImport }) => {
         window.URL.revokeObjectURL(url);
     };
 
+    const getColumns = () => {
+        if (previewData.length === 0) return [];
+        const firstRow = previewData[0];
+        return Object.keys(firstRow).filter(key => key !== '_rowIndex');
+    };
+
     return (
         <div className="modal-overlay">
-            <div className="modal-content">
+            <div className="modal-content bulk-import-modal-large">
                 <button className="modal-close-btn" onClick={onClose}>
                     <FiX />
                 </button>
@@ -58,43 +182,144 @@ const BulkImportModal = ({ isOpen, onClose, onImport }) => {
                 <h2>Bulk Import Products</h2>
                 
                 <div className="bulk-import-content">
-                    <div className="import-instructions">
-                        <h3>Instructions:</h3>
-                        <ul>
-                            <li>Download the sample CSV file to see the required format</li>
-                            <li>Required fields: name, price, category</li>
-                            <li>Use pipe (|) to separate multiple specifications (e.g., "Color:Red|Size:Large")</li>
-                            <li>Use comma to separate multiple tags, additional photo URLs and subcategories</li>
-                            <li>Category must match existing category names exactly</li>
-                        </ul>
-                    </div>
+                    {previewData.length === 0 ? (
+                        <>
+                            <div className="import-instructions">
+                                <h3>Instructions:</h3>
+                                <ul>
+                                    <li>Download the sample CSV file to see the required format</li>
+                                    <li>Required fields: name, price, category</li>
+                                    <li>Use pipe (|) to separate multiple specifications (e.g., "Color:Red|Size:Large")</li>
+                                    <li>Use comma to separate multiple tags, additional photo URLs and subcategories</li>
+                                    <li>Category must match existing category names exactly</li>
+                                </ul>
+                            </div>
 
-                    <div className="sample-download">
-                        <span className="sample-download-text">Download Sample Format:</span>
-                        <button 
-                            className="download-button" 
-                            onClick={downloadSample}
-                        >
-                            <FiDownload /> SampleProducts.CSV
-                        </button>
-                    </div>
+                            <div className="sample-download">
+                                <span className="sample-download-text">Download Sample Format:</span>
+                                <button 
+                                    className="download-button" 
+                                    onClick={downloadSample}
+                                >
+                                    <FiDownload /> SampleProducts.CSV
+                                </button>
+                            </div>
 
-                    <div className="file-upload-section">
-                        <label htmlFor="csv-file" className="file-upload-label">
-                            <FiUpload />
-                            Choose CSV File
-                        </label>
-                        <input
-                            id="csv-file"
-                            type="file"
-                            accept=".csv"
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                        />
-                        {csvFile && (
-                            <p className="selected-file">Selected: {csvFile.name}</p>
-                        )}
-                    </div>
+                            <div className="file-upload-section">
+                                <label htmlFor="csv-file" className="file-upload-label">
+                                    <FiUpload />
+                                    Choose CSV File
+                                </label>
+                                <input
+                                    id="csv-file"
+                                    type="file"
+                                    accept=".csv"
+                                    onChange={handleFileChange}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <div className="csv-preview-container">
+                            <div className="preview-header">
+                                <div className="preview-stats">
+                                    <h3>Preview Data ({previewData.length} rows)</h3>
+                                    {Object.keys(validationErrors).length > 0 && (
+                                        <span className="error-badge">
+                                            <FiAlertCircle /> {Object.keys(validationErrors).length} rows with errors
+                                        </span>
+                                    )}
+                                    {Object.keys(validationErrors).length === 0 && (
+                                        <span className="success-badge">
+                                            <FiCheckCircle /> All rows valid
+                                        </span>
+                                    )}
+                                </div>
+                                <button 
+                                    className="change-file-btn"
+                                    onClick={() => {
+                                        setCsvFile(null);
+                                        setPreviewData([]);
+                                        setValidationErrors({});
+                                        setEditingCell(null);
+                                    }}
+                                >
+                                    <FiUpload /> Change File
+                                </button>
+                            </div>
+
+                            <div className="table-wrapper">
+                                <table className="preview-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Row</th>
+                                            {getColumns().map(col => (
+                                                <th key={col}>{col}</th>
+                                            ))}
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {previewData.map((row, rowIndex) => {
+                                            const hasError = validationErrors[rowIndex];
+                                            return (
+                                                <tr key={rowIndex} className={hasError ? 'error-row' : ''}>
+                                                    <td className="row-number">{rowIndex + 1}</td>
+                                                    {getColumns().map(col => (
+                                                        <td 
+                                                            key={col}
+                                                            className={`editable-cell ${editingCell?.row === rowIndex && editingCell?.col === col ? 'editing' : ''}`}
+                                                            onClick={() => setEditingCell({ row: rowIndex, col })}
+                                                        >
+                                                            {editingCell?.row === rowIndex && editingCell?.col === col ? (
+                                                                <input
+                                                                    type="text"
+                                                                    value={row[col] || ''}
+                                                                    onChange={(e) => handleCellEdit(rowIndex, col, e.target.value)}
+                                                                    onBlur={() => setEditingCell(null)}
+                                                                    autoFocus
+                                                                    className="cell-input"
+                                                                />
+                                                            ) : (
+                                                                <span className="cell-content">
+                                                                    {row[col] || '-'}
+                                                                    <FiEdit2 className="edit-icon" />
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                    ))}
+                                                    <td>
+                                                        {hasError ? (
+                                                            <div className="error-cell">
+                                                                <FiAlertCircle />
+                                                                <div className="error-tooltip">
+                                                                    {validationErrors[rowIndex].map((err, i) => (
+                                                                        <div key={i}>{err}</div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <FiCheckCircle className="success-icon" />
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        <button 
+                                                            className="remove-row-btn"
+                                                            onClick={() => removeRow(rowIndex)}
+                                                            title="Remove row"
+                                                        >
+                                                            <FiX />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="modal-actions">
                         <button 
@@ -104,13 +329,15 @@ const BulkImportModal = ({ isOpen, onClose, onImport }) => {
                         >
                             Cancel
                         </button>
-                        <button 
-                            className="auth-button" 
-                            onClick={handleImport}
-                            disabled={!csvFile || isProcessing}
-                        >
-                            {isProcessing ? 'Processing...' : 'Import Products'}
-                        </button>
+                        {previewData.length > 0 && (
+                            <button 
+                                className="auth-button" 
+                                onClick={handleImport}
+                                disabled={Object.keys(validationErrors).length > 0 || isProcessing}
+                            >
+                                {isProcessing ? 'Processing...' : `Import ${previewData.length} Products`}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

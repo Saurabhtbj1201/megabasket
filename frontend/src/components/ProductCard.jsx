@@ -5,6 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FiEye, FiShoppingCart } from 'react-icons/fi';
 import { formatCurrency } from '../utils/formatCurrency';
+import { trackAddToCart } from '../utils/eventTracker';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
@@ -16,7 +17,7 @@ const ProductCard = ({ product }) => {
     const finalPrice = product.price - (product.price * product.discount / 100);
 
     const handleAddToCart = async (e) => {
-        e.preventDefault(); // Prevent link navigation
+        e.preventDefault();
         if (!userInfo) {
             localStorage.setItem('productToAdd', product._id);
             toast.info('Please log in to add items to your cart.');
@@ -29,6 +30,10 @@ const ProductCard = ({ product }) => {
             const { data } = await axios.post('/api/cart', { productId: product._id }, config);
             const count = data.reduce((acc, item) => acc + item.quantity, 0);
             setCartCount(count);
+            
+            // Track add to cart event
+            await trackAddToCart(product._id, product.price, 1);
+            
             toast.success(`${product.name} added to cart!`);
         } catch (error) {
             toast.error('Failed to add item to cart.');

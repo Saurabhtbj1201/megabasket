@@ -7,7 +7,7 @@ import axios from 'axios';
  * @param {number} expiryTime - Cache expiry time in milliseconds (default: 1 hour)
  * @returns {Promise<any>} - The fetched or cached data
  */
-export const fetchWithCache = async (url, cacheName, expiryTime = 3600000) => {
+export const fetchWithCache = async (url, cacheName, expiryTime = 300000) => {
   const cacheKey = `cache_${cacheName}`;
   
   // Check if data exists in cache and is not expired

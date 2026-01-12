@@ -472,6 +472,95 @@ const updateProductStatus = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Bulk update products (status, stock)
+// @route   PATCH /api/products/bulk-update
+// @access  Private/Admin
+const bulkUpdateProducts = asyncHandler(async (req, res) => {
+    const { productIds, updates } = req.body;
+    
+    if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
+        res.status(400);
+        throw new Error('Product IDs are required');
+    }
+    
+    if (!updates || Object.keys(updates).length === 0) {
+        res.status(400);
+        throw new Error('Update data is required');
+    }
+    
+    // Validate status if provided
+    if (updates.status && !['Published', 'Draft', 'Hidden'].includes(updates.status)) {
+        res.status(400);
+        throw new Error('Invalid status value');
+    }
+    
+    // Validate stock if provided
+    if (updates.stock !== undefined && (isNaN(updates.stock) || updates.stock < 0)) {
+        res.status(400);
+        throw new Error('Invalid stock value');
+    }
+    
+    try {
+        const updateData = {};
+        if (updates.status) updateData.status = updates.status;
+        if (updates.stock !== undefined) updateData.stock = updates.stock;
+        
+        const result = await Product.updateMany(
+            { _id: { $in: productIds } },
+            { $set: updateData }
+        );
+        
+        res.json({
+            message: `Successfully updated ${result.modifiedCount} products`,
+            modifiedCount: result.modifiedCount
+        });
+    } catch (error) {
+        res.status(500);
+        throw new Error('Failed to update products');
+    }
+});
+
+// @desc    Bulk delete products
+// @route   POST /api/products/bulk-delete
+// @access  Private/Admin
+const bulkDeleteProducts = asyncHandler(async (req, res) => {
+    const { productIds } = req.body;
+    
+    if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
+        res.status(400);
+        throw new Error('Product IDs are required');
+    }
+    
+    try {
+        // Find all products to get their images
+        const products = await Product.find({ _id: { $in: productIds } });
+        
+        // Collect all image URLs to delete from S3
+        const allImages = [];
+        products.forEach(product => {
+            if (product.images && product.images.length > 0) {
+                allImages.push(...product.images);
+            }
+        });
+        
+        // Delete images from S3
+        if (allImages.length > 0) {
+            await deleteImagesFromS3(allImages);
+        }
+        
+        // Delete products from database
+        const result = await Product.deleteMany({ _id: { $in: productIds } });
+        
+        res.json({
+            message: `Successfully deleted ${result.deletedCount} products`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        res.status(500);
+        throw new Error('Failed to delete products');
+    }
+});
+
 module.exports = { 
     searchProducts, 
     getAdminProducts, 
@@ -484,5 +573,7 @@ module.exports = {
     deleteProduct, 
     getProductById,
     bulkImportProducts,
-    updateProductStatus
+    updateProductStatus,
+    bulkUpdateProducts,
+    bulkDeleteProducts
 };
